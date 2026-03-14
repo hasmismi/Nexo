@@ -27,7 +27,7 @@ router.get("/", async (_req, res) => {
       ...r,
       goal_id: r.goal_id ?? 0,
       goal_name: r.goal_name ?? "",
-      trial_price: r.is_trial ? 549 : undefined,
+      trial_price: r.is_trial ? 499 : undefined,
       key_benefits: (() => {
         try { return JSON.parse(r.key_benefits ?? "[]"); } catch { return []; }
       })(),

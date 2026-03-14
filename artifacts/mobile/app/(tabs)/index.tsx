@@ -27,7 +27,7 @@ const GOALS_LIST = [
   { id: 8,  name: "Improved Brain Performance",        mci: "brain",          color: "#F5C518" },
   { id: 9,  name: "Increase Energy Levels",            mci: "lightning-bolt", color: "#1A6FBF" },
   { id: 10, name: "Kids Health",                       mci: "account-child",  color: "#FF8C00" },
-  { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",     color: "#6A0DAD" },
+  { id: 11, name: "Overall Senior Health Improvement", mci: "heart",          color: "#6A0DAD" },
   { id: 13, name: "Blood Sugar Management",            mci: "water-plus",     color: "#008080" },
 ];
 

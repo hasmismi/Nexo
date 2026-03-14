@@ -23,7 +23,7 @@ const GOALS = [
   { id: 8,  name: "Improved Brain Performance",        mci: "brain",         color: "#F5C518", desc: "Focus, memory, clarity" },
   { id: 9,  name: "Increase Energy Levels",            mci: "lightning-bolt",color: "#1A6FBF", desc: "Sustained clean energy" },
   { id: 10, name: "Kids Health",                       mci: "account-child", color: "#FF8C00", desc: "Natural growth support" },
-  { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",    color: "#6A0DAD", desc: "Nutrition for golden years" },
+  { id: 11, name: "Overall Senior Health Improvement", mci: "heart",         color: "#6A0DAD", desc: "Nutrition for golden years" },
   { id: 12, name: "Overall Fitness Support",           mci: "leaf",          color: "#4CAF50", desc: "Clean, holistic wellness" },
   { id: 13, name: "Blood Sugar Management",            mci: "water-plus",    color: "#008080", desc: "Steady energy, zero spikes" },
 ];
