@@ -23,10 +23,10 @@ import Colors from "@/constants/colors";
 
 const GOALS_LIST = [
   { id: 6,  name: "Muscle Gain",                      mci: "dumbbell", color: "#D9342B" },
-  { id: 7,  name: "Weight Loss",                       mci: "run-fast",           color: "#A8A8B3" },
+  { id: 7,  name: "Weight Loss",                       mci: "run",           color: "#A8A8B3" },
   { id: 8,  name: "Improved Brain Performance",        mci: "brain",         color: "#F5C518" },
-  { id: 9,  name: "Increase Energy Levels",            mci: "flash",color: "#1A6FBF" },
-  { id: 10, name: "Kids Health",                       mci: "baby-face", color: "#FF8C00" },
+  { id: 9,  name: "Increase Energy Levels",            mci: "zap",color: "#1A6FBF" },
+  { id: 10, name: "Kids Health",                       mci: "baby-carriage", color: "#FF8C00" },
   { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",    color: "#6A0DAD" },
   { id: 13, name: "Blood Sugar Management",            mci: "water-drop",    color: "#008080" },
 ];
