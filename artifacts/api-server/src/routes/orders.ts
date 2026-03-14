@@ -7,7 +7,17 @@ const router = Router();
 
 router.post("/checkout", async (req, res) => {
   try {
-    const { account_id } = req.body;
+    const {
+      account_id,
+      delivery_name,
+      delivery_phone,
+      delivery_address,
+      delivery_city,
+      delivery_pincode,
+      payment_method,
+      delivery_lat,
+      delivery_lng,
+    } = req.body;
     if (!account_id) return res.status(400).json({ message: "account_id required" });
 
     const cartItems = await db
@@ -28,7 +38,19 @@ router.post("/checkout", async (req, res) => {
 
     const orders = await db
       .insert(ordersTable)
-      .values({ account_id, total_price, status: "confirmed" })
+      .values({
+        account_id,
+        total_price,
+        status: "confirmed",
+        delivery_name: delivery_name ?? null,
+        delivery_phone: delivery_phone ?? null,
+        delivery_address: delivery_address ?? null,
+        delivery_city: delivery_city ?? null,
+        delivery_pincode: delivery_pincode ?? null,
+        payment_method: payment_method ?? null,
+        delivery_lat: delivery_lat ?? null,
+        delivery_lng: delivery_lng ?? null,
+      })
       .returning();
 
     const order = orders[0];
@@ -54,6 +76,12 @@ router.post("/checkout", async (req, res) => {
         total_price: order.total_price,
         status: order.status,
         tracking_link: order.tracking_link ?? undefined,
+        delivery_name: order.delivery_name ?? undefined,
+        delivery_phone: order.delivery_phone ?? undefined,
+        delivery_address: order.delivery_address ?? undefined,
+        delivery_city: order.delivery_city ?? undefined,
+        delivery_pincode: order.delivery_pincode ?? undefined,
+        payment_method: order.payment_method ?? undefined,
         created_at: order.created_at.toISOString(),
         items: orderItems,
       },
@@ -96,6 +124,12 @@ router.get("/", async (req, res) => {
         total_price: order.total_price,
         status: order.status,
         tracking_link: order.tracking_link ?? undefined,
+        delivery_name: order.delivery_name ?? undefined,
+        delivery_phone: order.delivery_phone ?? undefined,
+        delivery_address: order.delivery_address ?? undefined,
+        delivery_city: order.delivery_city ?? undefined,
+        delivery_pincode: order.delivery_pincode ?? undefined,
+        payment_method: order.payment_method ?? undefined,
         created_at: order.created_at.toISOString(),
         items: items.map((i) => ({ ...i, product_name: i.product_name ?? "" })),
       });

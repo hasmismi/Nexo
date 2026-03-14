@@ -115,10 +115,20 @@ export const api = {
   removeCartItem: (id: number) =>
     request<{ message: string }>(`/cart/item/${id}`, { method: "DELETE" }),
 
-  checkout: (account_id: number) =>
+  checkout: (data: {
+    account_id: number;
+    delivery_name?: string;
+    delivery_phone?: string;
+    delivery_address?: string;
+    delivery_city?: string;
+    delivery_pincode?: string;
+    payment_method?: string;
+    delivery_lat?: number;
+    delivery_lng?: number;
+  }) =>
     request<{ order: Order; message: string }>("/checkout", {
       method: "POST",
-      body: JSON.stringify({ account_id }),
+      body: JSON.stringify(data),
     }),
 
   getOrders: (account_id: number) =>
@@ -142,6 +152,12 @@ export interface Order {
   total_price: number;
   status: string;
   tracking_link?: string;
+  delivery_name?: string;
+  delivery_phone?: string;
+  delivery_address?: string;
+  delivery_city?: string;
+  delivery_pincode?: string;
+  payment_method?: string;
   created_at: string;
   items: {
     id: number;

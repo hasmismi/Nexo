@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   Pressable,
-  ActivityIndicator,
   Alert,
   Platform,
 } from "react-native";
+
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -22,8 +22,6 @@ export default function CartScreen() {
   const { user } = useApp();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   const { data, isLoading, refetch } = useQuery({
@@ -46,31 +44,10 @@ export default function CartScreen() {
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!user || items.length === 0) return;
-    Alert.alert("Confirm Order", `Place order for ₹${totalPrice.toLocaleString()}?`, [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Confirm",
-        onPress: async () => {
-          setIsCheckingOut(true);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          try {
-            await api.checkout(user.account_id);
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
-            queryClient.invalidateQueries({ queryKey: ["orders"] });
-            Alert.alert("Order Placed!", "Your order has been confirmed.", [
-              { text: "View Orders", onPress: () => router.replace("/orders") },
-              { text: "OK", onPress: () => router.back() },
-            ]);
-          } catch (err: any) {
-            Alert.alert("Error", err.message);
-          } finally {
-            setIsCheckingOut(false);
-          }
-        },
-      },
-    ]);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push("/checkout");
   };
 
   return (
@@ -115,18 +92,11 @@ export default function CartScreen() {
               <Text style={styles.totalValue}>₹{totalPrice.toLocaleString()}</Text>
             </View>
             <Pressable
-              style={({ pressed }) => [styles.checkoutBtn, pressed && { opacity: 0.85 }, isCheckingOut && { opacity: 0.6 }]}
+              style={({ pressed }) => [styles.checkoutBtn, pressed && { opacity: 0.85 }]}
               onPress={handleCheckout}
-              disabled={isCheckingOut}
             >
-              {isCheckingOut ? (
-                <ActivityIndicator color="#000" />
-              ) : (
-                <>
-                  <Text style={styles.checkoutBtnText}>Place Order</Text>
-                  <Feather name="arrow-right" size={18} color="#000" />
-                </>
-              )}
+              <Text style={styles.checkoutBtnText}>Proceed to Checkout</Text>
+              <Feather name="arrow-right" size={18} color="#000" />
             </Pressable>
           </View>
         </>

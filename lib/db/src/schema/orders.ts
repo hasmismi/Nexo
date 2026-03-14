@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, real, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, real, text, timestamp, doublePrecision } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { accountsTable } from "./accounts";
@@ -9,6 +9,14 @@ export const ordersTable = pgTable("orders", {
   total_price: real("total_price").notNull(),
   status: text("status").default("pending").notNull(),
   tracking_link: text("tracking_link"),
+  delivery_name: text("delivery_name"),
+  delivery_phone: text("delivery_phone"),
+  delivery_address: text("delivery_address"),
+  delivery_city: text("delivery_city"),
+  delivery_pincode: text("delivery_pincode"),
+  payment_method: text("payment_method"),
+  delivery_lat: doublePrecision("delivery_lat"),
+  delivery_lng: doublePrecision("delivery_lng"),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
