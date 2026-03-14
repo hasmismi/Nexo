@@ -36,12 +36,16 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
+  const redirectUrl = Platform.OS === "web" 
+    ? "https://d3684ef2-728f-4549-afcc-c3638c781c0b-00-1whn1gr3fghnp.picard.replit.dev/"
+    : AuthSession.getRedirectUrl();
+
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
       scopes: ["profile", "email"],
-      redirectUrl: AuthSession.getRedirectUrl(),
+      redirectUrl,
     },
     discovery
   );
