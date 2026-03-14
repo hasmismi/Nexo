@@ -126,8 +126,25 @@ export const api = {
     delivery_lat?: number;
     delivery_lng?: number;
     delivery_fee?: number;
+    razorpay_payment_id?: string;
   }) =>
     request<{ order: Order; message: string }>("/checkout", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  createPaymentOrder: (data: { amount_paise: number; receipt: string }) =>
+    request<{ order_id: string; amount: number; currency: string; key_id: string }>("/payment/create-order", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  verifyPayment: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) =>
+    request<{ verified: boolean; payment_id: string }>("/payment/verify", {
       method: "POST",
       body: JSON.stringify(data),
     }),

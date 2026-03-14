@@ -18,6 +18,7 @@ router.post("/checkout", async (req, res) => {
       delivery_lat,
       delivery_lng,
       delivery_fee,
+      razorpay_payment_id,
     } = req.body;
     if (!account_id) return res.status(400).json({ message: "account_id required" });
 
@@ -54,6 +55,7 @@ router.post("/checkout", async (req, res) => {
         delivery_lat: delivery_lat ?? null,
         delivery_lng: delivery_lng ?? null,
         delivery_fee: fee,
+        razorpay_payment_id: razorpay_payment_id ?? null,
       })
       .returning();
 

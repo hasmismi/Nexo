@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { useApp } from "@/context/AppContext";
 import { api, CartItem } from "@/lib/api";
 import Colors from "@/constants/colors";
 import { Toast } from "@/components/AppAlert";
+import { RazorpayCheckout, RazorpayOptions } from "@/components/RazorpayCheckout";
 
 type PaymentMethod = "upi" | "card" | "cod";
 
@@ -46,6 +47,8 @@ export default function CheckoutScreen() {
   const [locLoading, setLocLoading] = useState(false);
   const [isPlacing, setIsPlacing] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [razorpayOpts, setRazorpayOpts] = useState<RazorpayOptions | null>(null);
+  const [showRazorpay, setShowRazorpay] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["cart", user?.account_id],
@@ -97,14 +100,10 @@ export default function CheckoutScreen() {
     return true;
   };
 
-  const handlePlaceOrder = async () => {
-    if (!user || items.length === 0) return;
-    if (!validate()) return;
-    setIsPlacing(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  const placeOrder = async (razorpayPaymentId?: string) => {
     try {
       await api.checkout({
-        account_id: user.account_id,
+        account_id: user!.account_id,
         delivery_name: name.trim(),
         delivery_phone: phone.trim(),
         delivery_address: address.trim(),
@@ -114,6 +113,7 @@ export default function CheckoutScreen() {
         delivery_lat: coords?.lat,
         delivery_lng: coords?.lng,
         delivery_fee: deliveryFee,
+        razorpay_payment_id: razorpayPaymentId,
       });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -123,6 +123,68 @@ export default function CheckoutScreen() {
     } finally {
       setIsPlacing(false);
     }
+  };
+
+  const handlePlaceOrder = async () => {
+    if (!user || items.length === 0) return;
+    if (!validate()) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+
+    if (paymentMethod === "cod") {
+      setIsPlacing(true);
+      await placeOrder();
+      return;
+    }
+
+    setIsPlacing(true);
+    try {
+      const amountPaise = Math.round(grandTotal * 100);
+      const result = await api.createPaymentOrder({
+        amount_paise: amountPaise,
+        receipt: `order_${user.account_id}_${Date.now()}`,
+      });
+      setRazorpayOpts({
+        key: result.key_id,
+        amount: result.amount,
+        currency: result.currency,
+        order_id: result.order_id,
+        name: "Nexo Nutrition",
+        description: `${items.length} product${items.length > 1 ? "s" : ""}`,
+        prefill: { name: name.trim(), contact: phone.trim() },
+      });
+      setShowRazorpay(true);
+      setIsPlacing(false);
+    } catch (err: any) {
+      setToast(err.message ?? "Could not initiate payment");
+      setIsPlacing(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentId: string, _orderId: string, signature: string) => {
+    setShowRazorpay(false);
+    setIsPlacing(true);
+    try {
+      await api.verifyPayment({
+        razorpay_order_id: razorpayOpts!.order_id,
+        razorpay_payment_id: paymentId,
+        razorpay_signature: signature,
+      });
+      await placeOrder(paymentId);
+    } catch {
+      setToast("Payment could not be verified. Please contact support.");
+      setIsPlacing(false);
+    }
+  };
+
+  const handlePaymentFailure = (reason: string) => {
+    setShowRazorpay(false);
+    setIsPlacing(false);
+    setToast(`Payment failed: ${reason}`);
+  };
+
+  const handlePaymentDismiss = () => {
+    setShowRazorpay(false);
+    setIsPlacing(false);
   };
 
   const mapUrl =
@@ -302,14 +364,26 @@ export default function CheckoutScreen() {
             <ActivityIndicator color="#000" />
           ) : (
             <>
-              <Feather name="check-circle" size={20} color="#000" />
-              <Text style={styles.placeBtnText}>Place Order</Text>
+              <Feather name={paymentMethod === "cod" ? "check-circle" : "credit-card"} size={20} color="#000" />
+              <Text style={styles.placeBtnText}>
+                {paymentMethod === "cod" ? "Place COD Order" : paymentMethod === "upi" ? "Pay with UPI" : "Pay with Card"}
+              </Text>
             </>
           )}
         </Pressable>
       </View>
 
       <Toast visible={!!toast} message={toast ?? ""} icon="alert-circle" onHide={() => setToast(null)} />
+
+      {razorpayOpts && (
+        <RazorpayCheckout
+          visible={showRazorpay}
+          options={razorpayOpts}
+          onSuccess={handlePaymentSuccess}
+          onFailure={handlePaymentFailure}
+          onDismiss={handlePaymentDismiss}
+        />
+      )}
     </KeyboardAvoidingView>
   );
 }
