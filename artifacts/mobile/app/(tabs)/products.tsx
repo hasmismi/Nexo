@@ -87,6 +87,15 @@ export default function ProductsScreen() {
 
   const handleAddTrialToCart = async () => {
     if (!user || !trialPack || trialSelections.length !== 2) return;
+    
+    // Check if trial pack is already in cart
+    const cartRes = await api.getCart(user.account_id);
+    const trialInCart = cartRes.items.some(item => item.product_id === trialPack.id);
+    if (trialInCart) {
+      Alert.alert("Trial Pack Limit", "You can only purchase the trial pack once. It's already in your cart!");
+      return;
+    }
+    
     setIsAdding(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {

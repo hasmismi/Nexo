@@ -47,12 +47,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.removeItem("nexo_user");
     setUserState(null);
     setCartCount(0);
-    if (Platform.OS === "web") {
-      // On web, a full reload is the most reliable way to reset all state
-      window.location.href = "/";
-    } else {
-      router.replace("/");
-    }
+    router.replace("/");
   };
 
   const value = useMemo<AppContextValue>(

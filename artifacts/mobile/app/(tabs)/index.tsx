@@ -28,7 +28,6 @@ const GOALS_LIST = [
   { id: 9,  name: "Increase Energy Levels",            mci: "lightning-bolt",color: "#1A6FBF" },
   { id: 10, name: "Kids Health",                       mci: "account-child", color: "#FF8C00" },
   { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",    color: "#6A0DAD" },
-  { id: 12, name: "Overall Fitness Support",           mci: "leaf",          color: "#4CAF50" },
   { id: 13, name: "Blood Sugar Management",            mci: "water-plus",    color: "#008080" },
 ];
 
