@@ -10,24 +10,22 @@ import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
 
-// Android-safe icon mapping - uses Feather icons that work reliably
+// Required for web OAuth popup flow to complete properly
+WebBrowser.maybeCompleteAuthSession();
+
 const ICON_MAP: Record<string, { feather: string; label: string }> = {
   "run": { feather: "activity", label: "Weight Loss" },
   "dumbbell": { feather: "zap", label: "Muscle" },
-  "brain": { feather: "brain", label: "Brain" },
+  "brain": { feather: "cpu", label: "Brain" },
   "zap": { feather: "zap", label: "Energy" },
-  "leaf": { feather: "leaf", label: "Vitality" },
+  "leaf": { feather: "feather", label: "Vitality" },
 };
 
-// Google OAuth config - get these from Google Cloud Console
-// https://console.cloud.google.com/
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
-const GOOGLE_CLIENT_SECRET = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET || "";
 
-// For web/Replit
 const discovery = {
   authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
-  tokenEndpoint: "https://www.googleapis.com/oauth2/v4/token",
+  tokenEndpoint: "https://oauth2.googleapis.com/token",
   revocationEndpoint: "https://oauth2.googleapis.com/revoke",
 };
 
@@ -36,16 +34,16 @@ export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  const redirectUrl = Platform.OS === "web" 
-    ? "https://d3684ef2-728f-4549-afcc-c3638c781c0b-00-1whn1gr3fghnp.picard.replit.dev/"
-    : AuthSession.getRedirectUrl();
+  const redirectUri = AuthSession.makeRedirectUri({
+    scheme: "mobile",
+  });
 
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
       clientId: GOOGLE_CLIENT_ID,
-      clientSecret: GOOGLE_CLIENT_SECRET,
-      scopes: ["profile", "email"],
-      redirectUrl,
+      scopes: ["openid", "profile", "email"],
+      redirectUri,
+      responseType: AuthSession.ResponseType.Token,
     },
     discovery
   );
@@ -62,16 +60,21 @@ export default function LoginScreen() {
 
   useEffect(() => {
     if (response?.type === "success") {
-      const { authentication } = response;
-      if (authentication?.accessToken) {
-        handleGoogleLoginWithToken(authentication.accessToken);
+      const accessToken = response.params?.access_token;
+      if (accessToken) {
+        handleGoogleLoginWithToken(accessToken);
       }
+    } else if (response?.type === "error") {
+      console.error("OAuth error:", response.error);
+      Alert.alert("Login Error", response.error?.message || "Google sign-in failed. Please try again.");
+      setIsLoggingIn(false);
+    } else if (response?.type === "dismiss" || response?.type === "cancel") {
+      setIsLoggingIn(false);
     }
   }, [response]);
 
   const handleGoogleLoginWithToken = async (accessToken: string) => {
     try {
-      // Get user info from Google
       const userInfoRes = await fetch(
         "https://www.googleapis.com/oauth2/v2/userinfo",
         { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -79,10 +82,9 @@ export default function LoginScreen() {
       const userInfo = await userInfoRes.json();
 
       if (!userInfoRes.ok) {
-        throw new Error(userInfo.error?.message || "Failed to get user info");
+        throw new Error(userInfo.error?.message || "Failed to get user info from Google");
       }
 
-      // Login with backend
       const result = await api.googleLogin({
         google_id: userInfo.id,
         email: userInfo.email,
@@ -104,11 +106,13 @@ export default function LoginScreen() {
   };
 
   const handleGoogleLogin = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
     if (!GOOGLE_CLIENT_ID) {
       Alert.alert(
         "Setup Required",
-        "Google OAuth is not configured. Please set EXPO_PUBLIC_GOOGLE_CLIENT_ID environment variable."
+        "Google OAuth is not configured. Please set EXPO_PUBLIC_GOOGLE_CLIENT_ID."
       );
       return;
     }
@@ -147,7 +151,7 @@ export default function LoginScreen() {
           <Pill label="Muscle Gain" mci="dumbbell" color="#D9342B" />
         </View>
         <View style={styles.pillRow}>
-          <Pill label="Energy" mci="zap" color={Colors.blue} />
+          <Pill label="Energy" mci="lightning-bolt" color={Colors.blue} />
           <Pill label="Brain Power" mci="brain" color="#F5C518" />
           <Pill label="Vitality" mci="leaf" color="#6A0DAD" />
         </View>
@@ -168,7 +172,7 @@ export default function LoginScreen() {
           disabled={isLoggingIn || !request}
         >
           {isLoggingIn ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color="#000" size="small" />
           ) : (
             <>
               <View style={styles.googleIcon}>
@@ -191,7 +195,7 @@ function Pill({ label, mci, color }: { label: string; mci: string; color: string
   return (
     <View style={[styles.pill, { borderColor: color + "40" }]}>
       {Platform.OS === "android" ? (
-        <Feather name={ICON_MAP[mci]?.feather ?? "circle"} size={14} color={color} />
+        <Feather name={ICON_MAP[mci]?.feather as any ?? "circle"} size={14} color={color} />
       ) : (
         <MaterialCommunityIcons name={mci as any} size={14} color={color} />
       )}
