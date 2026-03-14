@@ -14,11 +14,13 @@ import Colors from "@/constants/colors";
 WebBrowser.maybeCompleteAuthSession();
 
 const ICON_MAP: Record<string, { feather: string; label: string }> = {
-  "run": { feather: "activity", label: "Weight Loss" },
-  "dumbbell": { feather: "zap", label: "Muscle" },
-  "brain": { feather: "cpu", label: "Brain" },
-  "zap": { feather: "zap", label: "Energy" },
-  "leaf": { feather: "feather", label: "Vitality" },
+  "run":            { feather: "activity", label: "Weight Loss" },
+  "weight-lifter":  { feather: "zap",      label: "Muscle" },
+  "dumbbell":       { feather: "zap",      label: "Muscle" },
+  "brain":          { feather: "cpu",      label: "Brain" },
+  "lightning-bolt": { feather: "zap",      label: "Energy" },
+  "zap":            { feather: "zap",      label: "Energy" },
+  "leaf":           { feather: "feather",  label: "Vitality" },
 };
 
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
