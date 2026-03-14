@@ -7,6 +7,7 @@ export const profilesTable = pgTable("profiles", {
   id: serial("id").primaryKey(),
   account_id: integer("account_id").notNull().references(() => accountsTable.id),
   name: text("name").notNull(),
+  date_of_birth: text("date_of_birth").notNull().default(""),
   age: integer("age").notNull(),
   gender: text("gender").notNull(),
   height_cm: real("height_cm").notNull(),

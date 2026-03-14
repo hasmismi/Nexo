@@ -7,6 +7,7 @@ import productsRouter from "./products";
 import cartRouter from "./cart";
 import ordersRouter from "./orders";
 import supportRouter from "./support";
+import goalsRouter from "./goals";
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use("/cart", cartRouter);
 router.use("/checkout", ordersRouter);
 router.use("/orders", ordersRouter);
 router.use("/support", supportRouter);
+router.use("/goals", goalsRouter);
 
 export default router;

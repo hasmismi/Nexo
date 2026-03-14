@@ -34,6 +34,8 @@ router.get("/", async (req, res) => {
       .where(eq(userGoalsTable.profile_id, profile.id))
       .orderBy(userGoalsTable.rank);
 
+    const allGoals = await db.select().from(goalsTable).orderBy(goalsTable.id);
+
     const totalGrams = calcMonthlyGrams(profile.weight_kg);
     const gramsPerProduct = userGoals.length > 0 ? Math.floor(totalGrams / userGoals.length) : totalGrams;
     const gramsPerDay = totalGrams / 30;
@@ -53,6 +55,9 @@ router.get("/", async (req, res) => {
           grams: gramsPerProduct,
           grams_per_day: parseFloat((gramsPerProduct / 30).toFixed(1)),
           goal_name: ug.goal_name ?? "",
+          price_per_gram: p.price_per_gram,
+          icon_emoji: p.icon_emoji,
+          icon_color: p.icon_color,
         });
       }
     }
@@ -63,12 +68,15 @@ router.get("/", async (req, res) => {
         account_id: profile.account_id,
         name: profile.name,
         age: profile.age,
+        date_of_birth: profile.date_of_birth,
         gender: profile.gender,
         height_cm: profile.height_cm,
         weight_kg: profile.weight_kg,
         bmi: profile.bmi,
         phone_number: profile.phone_number,
       },
+      user_goals: userGoals.map((g) => ({ goal_id: g.goal_id, goal_name: g.goal_name ?? "", rank: g.rank })),
+      all_goals: allGoals,
       recommendations,
       total_grams_per_month: totalGrams,
       grams_per_day: gramsPerDay,

@@ -16,6 +16,9 @@ router.get("/", async (_req, res) => {
         goal_id: productsTable.goal_id,
         goal_name: goalsTable.name,
         is_trial: productsTable.is_trial,
+        key_benefits: productsTable.key_benefits,
+        icon_color: productsTable.icon_color,
+        icon_emoji: productsTable.icon_emoji,
       })
       .from(productsTable)
       .leftJoin(goalsTable, eq(productsTable.goal_id, goalsTable.id));
@@ -25,6 +28,9 @@ router.get("/", async (_req, res) => {
       goal_id: r.goal_id ?? 0,
       goal_name: r.goal_name ?? "",
       trial_price: r.is_trial ? 399 : undefined,
+      key_benefits: (() => {
+        try { return JSON.parse(r.key_benefits ?? "[]"); } catch { return []; }
+      })(),
     }));
 
     return res.json({ products });

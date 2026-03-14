@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -52,26 +52,32 @@ export default function LoginScreen() {
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 32, paddingTop: insets.top }]}>
       <View style={styles.logoArea}>
-        <View style={styles.logoCircle}>
-          <Feather name="zap" size={42} color={Colors.primary} />
-        </View>
-        <Text style={styles.appName}>NEXO</Text>
-        <Text style={styles.tagline}>Personalized Nutrition</Text>
+        <Image
+          source={require("@/assets/images/nexo-logo.jpeg")}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+        <Text style={styles.tagline}>by Ashgre · Personalized Nutrition</Text>
       </View>
 
       <View style={styles.heroSection}>
         <View style={styles.pillRow}>
-          <Pill icon="activity" text="Weight Loss" />
-          <Pill icon="trending-up" text="Muscle Gain" />
+          <Pill icon="activity" text="Weight Loss" color={Colors.primary} />
+          <Pill icon="trending-up" text="Muscle Gain" color="#D9342B" />
         </View>
         <View style={styles.pillRow}>
-          <Pill icon="shield" text="Immunity" />
-          <Pill icon="zap" text="Energy" />
-          <Pill icon="heart" text="Vitamins" />
+          <Pill icon="zap" text="Energy" color={Colors.blue} />
+          <Pill icon="brain" text="Brain Power" color="#F5C518" />
+          <Pill icon="heart" text="Vitality" color="#6A0DAD" />
         </View>
         <Text style={styles.heroText}>
-          Science-backed nutrition{"\n"}tailored just for you
+          Small in size,{"\n"}big in benefits
         </Text>
+        <View style={styles.certRow}>
+          <Text style={styles.certChip}>🌱 Vegan</Text>
+          <Text style={styles.certChip}>💚 Cruelty Free</Text>
+          <Text style={styles.certChip}>✅ FSSAI</Text>
+        </View>
       </View>
 
       <View style={styles.bottomSection}>
@@ -93,11 +99,11 @@ export default function LoginScreen() {
   );
 }
 
-function Pill({ icon, text }: { icon: string; text: string }) {
+function Pill({ icon, text, color }: { icon: string; text: string; color: string }) {
   return (
-    <View style={styles.pill}>
-      <Feather name={icon as any} size={13} color={Colors.primary} />
-      <Text style={styles.pillText}>{text}</Text>
+    <View style={[styles.pill, { borderColor: color + "40" }]}>
+      <Feather name={icon as any} size={13} color={color} />
+      <Text style={[styles.pillText, { color }]}>{text}</Text>
     </View>
   );
 }
@@ -112,31 +118,18 @@ const styles = StyleSheet.create({
   },
   logoArea: {
     alignItems: "center",
-    paddingTop: 48,
+    paddingTop: 32,
   },
-  logoCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 28,
-    backgroundColor: Colors.dark.surface,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: Colors.dark.border,
-  },
-  appName: {
-    fontFamily: "Inter_700Bold",
-    fontSize: 36,
-    color: Colors.dark.text,
-    letterSpacing: 8,
+  logoImage: {
+    width: 220,
+    height: 160,
   },
   tagline: {
     fontFamily: "Inter_400Regular",
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.dark.textSecondary,
-    marginTop: 6,
-    letterSpacing: 1,
+    marginTop: 4,
+    letterSpacing: 0.3,
   },
   heroSection: {
     alignItems: "center",
@@ -153,7 +146,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
     backgroundColor: Colors.dark.surface,
-    borderColor: Colors.dark.border,
     borderWidth: 1,
     paddingHorizontal: 14,
     paddingVertical: 8,
@@ -162,15 +154,32 @@ const styles = StyleSheet.create({
   pillText: {
     fontFamily: "Inter_500Medium",
     fontSize: 13,
-    color: Colors.dark.textSecondary,
   },
   heroText: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 22,
+    fontFamily: "Inter_700Bold",
+    fontSize: 28,
     color: Colors.dark.text,
     textAlign: "center",
-    lineHeight: 32,
-    marginTop: 12,
+    lineHeight: 36,
+    marginTop: 8,
+  },
+  certRow: {
+    flexDirection: "row",
+    gap: 8,
+    flexWrap: "wrap",
+    justifyContent: "center",
+    marginTop: 4,
+  },
+  certChip: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    color: Colors.dark.textSecondary,
+    backgroundColor: Colors.dark.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.dark.border,
   },
   bottomSection: {
     width: "100%",

@@ -18,16 +18,40 @@ import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
 
 const GOALS = [
-  { id: 1, name: "Weight Loss", icon: "activity", desc: "Burn fat, stay lean" },
-  { id: 2, name: "Muscle Gain", icon: "trending-up", desc: "Build & recover faster" },
-  { id: 3, name: "Immunity", icon: "shield", desc: "Stay protected year-round" },
-  { id: 4, name: "Energy", icon: "zap", desc: "Sustained clean energy" },
-  { id: 5, name: "Vitamins", icon: "heart", desc: "Complete daily nutrition" },
+  { id: 6,  name: "Muscle Gain",                      icon: "🏋️",  desc: "Build and recover faster" },
+  { id: 7,  name: "Weight Loss",                       icon: "🌬️",  desc: "Burn fat, stay lean" },
+  { id: 8,  name: "Improved Brain Performance",        icon: "🧠",  desc: "Focus, memory, clarity" },
+  { id: 9,  name: "Increase Energy Levels",            icon: "🏃",  desc: "Sustained clean energy" },
+  { id: 10, name: "Kids Health",                       icon: "👒",  desc: "Natural growth support" },
+  { id: 11, name: "Overall Senior Health Improvement", icon: "😊",  desc: "Nutrition for golden years" },
+  { id: 12, name: "Overall Fitness Support",           icon: "🌿",  desc: "Clean, holistic wellness" },
+  { id: 13, name: "Blood Sugar Management",            icon: "🍬",  desc: "Steady energy, zero spikes" },
 ];
 
 const GENDERS = ["Male", "Female", "Other"];
 const STEPS = ["profile", "goals"] as const;
 type Step = (typeof STEPS)[number];
+
+function calcAge(dob: string): number | null {
+  const parts = dob.split("/");
+  if (parts.length !== 3) return null;
+  const [dd, mm, yyyy] = parts;
+  if (!dd || !mm || !yyyy || yyyy.length < 4) return null;
+  const birth = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
+  if (isNaN(birth.getTime())) return null;
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return Math.max(0, age);
+}
+
+function toISODate(dob: string): string {
+  const parts = dob.split("/");
+  if (parts.length !== 3) return dob;
+  const [dd, mm, yyyy] = parts;
+  return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+}
 
 export default function OnboardingScreen() {
   const { user, setUser } = useApp();
@@ -36,7 +60,7 @@ export default function OnboardingScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
+  const [dob, setDob] = useState("");
   const [gender, setGender] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
@@ -53,9 +77,21 @@ export default function OnboardingScreen() {
     }
   };
 
+  const formatDob = (text: string) => {
+    const clean = text.replace(/[^0-9]/g, "");
+    if (clean.length <= 2) return clean;
+    if (clean.length <= 4) return `${clean.slice(0, 2)}/${clean.slice(2)}`;
+    return `${clean.slice(0, 2)}/${clean.slice(2, 4)}/${clean.slice(4, 8)}`;
+  };
+
   const handleProfileNext = () => {
-    if (!name || !age || !gender || !height || !weight || !phone) {
+    if (!name || !dob || !gender || !height || !weight || !phone) {
       Alert.alert("Missing fields", "Please fill in all fields to continue.");
+      return;
+    }
+    const age = calcAge(dob);
+    if (age === null || age < 1 || age > 120) {
+      Alert.alert("Invalid date of birth", "Please enter a valid date in DD/MM/YYYY format.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -74,7 +110,7 @@ export default function OnboardingScreen() {
       await api.submitOnboarding({
         account_id: user.account_id,
         name,
-        age: parseInt(age),
+        date_of_birth: toISODate(dob),
         gender,
         height_cm: parseFloat(height),
         weight_kg: parseFloat(weight),
@@ -89,6 +125,8 @@ export default function OnboardingScreen() {
       setIsSubmitting(false);
     }
   };
+
+  const age = calcAge(dob);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -113,7 +151,7 @@ export default function OnboardingScreen() {
         {step === "profile" ? (
           <>
             <Text style={styles.title}>Your Profile</Text>
-            <Text style={styles.subtitle}>We need a few details to personalize your nutrition plan</Text>
+            <Text style={styles.subtitle}>We need a few details to personalise your nutrition plan</Text>
 
             <View style={styles.field}>
               <Text style={styles.label}>Full Name</Text>
@@ -127,29 +165,32 @@ export default function OnboardingScreen() {
               />
             </View>
 
-            <View style={styles.row}>
-              <View style={[styles.field, { flex: 1 }]}>
-                <Text style={styles.label}>Age</Text>
-                <TextInput
-                  style={styles.input}
-                  value={age}
-                  onChangeText={setAge}
-                  placeholder="25"
-                  placeholderTextColor={Colors.dark.textTertiary}
-                  keyboardType="numeric"
-                />
-              </View>
-              <View style={[styles.field, { flex: 1 }]}>
-                <Text style={styles.label}>Phone</Text>
-                <TextInput
-                  style={styles.input}
-                  value={phone}
-                  onChangeText={setPhone}
-                  placeholder="+91..."
-                  placeholderTextColor={Colors.dark.textTertiary}
-                  keyboardType="phone-pad"
-                />
-              </View>
+            <View style={styles.field}>
+              <Text style={styles.label}>Date of Birth (DD/MM/YYYY)</Text>
+              <TextInput
+                style={styles.input}
+                value={dob}
+                onChangeText={(t) => setDob(formatDob(t))}
+                placeholder="01/01/1995"
+                placeholderTextColor={Colors.dark.textTertiary}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+              {age !== null && dob.length === 10 && (
+                <Text style={styles.ageCalc}>Age: {age} years</Text>
+              )}
+            </View>
+
+            <View style={styles.field}>
+              <Text style={styles.label}>Phone Number</Text>
+              <TextInput
+                style={styles.input}
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="+91 98765 43210"
+                placeholderTextColor={Colors.dark.textTertiary}
+                keyboardType="phone-pad"
+              />
             </View>
 
             <View style={styles.field}>
@@ -203,7 +244,7 @@ export default function OnboardingScreen() {
         ) : (
           <>
             <Text style={styles.title}>Your Goals</Text>
-            <Text style={styles.subtitle}>Select up to 2 goals — we'll build your plan around them</Text>
+            <Text style={styles.subtitle}>Select up to 2 goals — we'll build your personalised plan around them</Text>
 
             <View style={styles.goalsGrid}>
               {GOALS.map((goal) => {
@@ -216,26 +257,22 @@ export default function OnboardingScreen() {
                     onPress={() => toggleGoal(goal.id)}
                   >
                     <View style={styles.goalCardTop}>
-                      <View style={[styles.goalIcon, !!selected && styles.goalIconSelected]}>
-                        <Feather name={goal.icon as any} size={20} color={selected ? "#000" : Colors.primary} />
-                      </View>
+                      <Text style={styles.goalEmoji}>{goal.icon}</Text>
                       {rank !== undefined && (
                         <View style={styles.rankBadge}>
                           <Text style={styles.rankText}>{rank}</Text>
                         </View>
                       )}
                     </View>
-                    <Text style={[styles.goalName, !!selected && styles.goalNameSelected]}>{goal.name}</Text>
-                    <Text style={[styles.goalDesc, !!selected && styles.goalDescSelected]}>{goal.desc}</Text>
+                    <Text style={[styles.goalName, !!selected && { color: Colors.primary }]}>{goal.name}</Text>
+                    <Text style={styles.goalDesc}>{goal.desc}</Text>
                   </Pressable>
                 );
               })}
             </View>
 
             <View style={styles.goalsCounter}>
-              <Text style={styles.goalsCounterText}>
-                {selectedGoals.length}/2 selected
-              </Text>
+              <Text style={styles.goalsCounterText}>{selectedGoals.length}/2 selected</Text>
             </View>
 
             <Pressable
@@ -305,7 +342,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.dark.textSecondary,
     lineHeight: 20,
-    marginBottom: 32,
+    marginBottom: 28,
   },
   field: { marginBottom: 20 },
   row: { flexDirection: "row", gap: 12 },
@@ -326,6 +363,12 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     fontSize: 15,
     color: Colors.dark.text,
+  },
+  ageCalc: {
+    fontFamily: "Inter_500Medium",
+    fontSize: 13,
+    color: Colors.primary,
+    marginTop: 6,
   },
   genderRow: { flexDirection: "row", gap: 10 },
   genderBtn: {
@@ -375,7 +418,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.dark.border,
     borderRadius: 16,
     padding: 16,
-    gap: 6,
+    gap: 4,
   },
   goalCardSelected: {
     borderColor: Colors.primary,
@@ -385,19 +428,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  goalIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: Colors.primary + "15",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  goalIconSelected: {
-    backgroundColor: Colors.primary,
-  },
+  goalEmoji: { fontSize: 28 },
   rankBadge: {
     width: 22,
     height: 22,
@@ -413,17 +446,16 @@ const styles = StyleSheet.create({
   },
   goalName: {
     fontFamily: "Inter_600SemiBold",
-    fontSize: 14,
+    fontSize: 13,
     color: Colors.dark.text,
+    lineHeight: 18,
   },
-  goalNameSelected: { color: Colors.dark.text },
   goalDesc: {
     fontFamily: "Inter_400Regular",
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.dark.textSecondary,
-    lineHeight: 16,
+    lineHeight: 15,
   },
-  goalDescSelected: { color: Colors.dark.textSecondary },
   goalsCounter: {
     alignItems: "center",
     marginBottom: 20,

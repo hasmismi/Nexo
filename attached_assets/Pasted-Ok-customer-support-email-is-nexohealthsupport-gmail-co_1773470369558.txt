@@ -1,0 +1,80 @@
+Ok, customer support email is nexohealthsupport@gmail.com and phone number is +91 8807803856
+
+LOGO of nexo I added
+also a way to edit height and weight and age should not be entered it should be date of birth and app should calculate their age and update it and also a way to edit nutrition goals so they can get different reccs so like
+
+your top nutrition goals: edit?
+Goal A, Goal B
+app colors is Black and green but also add blue like in the logo
+
+and the nutrition plan part should have a "Add plan to cart" option, and the product description they should be able to click on the product to get full details
+
+and trial pack they can select 2 products to get for the trial. One product 350g or two means 175g of each so 50g total per day for 7 days
+
+Now, during the onboarding, we have to change the nutrition goals to these:
+"Muscle Gain" , "Weight loss", "Improved brain performance", "Increase energy levels", "Kids health", "Overall senior health improvment", "Overall fitness support", "Blood sugar management"
+
+products page:
+NO 1. Nexo Elite Performer(match with muscle gain)
+price per gram: INR1.75/g
+icon color: Power Red, emoticon of dumbell
+description: Recover, Rebuild, Repeat. Fuel for the relentless. Ditch synthetic protien and switch to natural protien enriched with BCAAs
+key benefits:
+
+14.2g of protien per serving of 50g powder, intense muscle repair.
+Full, complete B-complex profile for explosive energy.
+Rich in BCAA's from natural plant sources.
+Pure natural protien, easier to digest than synthetic whey.
+NO 2. Nexo Light and Lean(match with weight loss)
+price per gram: INR 1.7/g
+icon color: cool silver, emoticon of air
+descrption: Fill up, lean out. Curb cravings naturally. High satiety fiber that keeps you fuller for longer, at just 165 calories per 50g of powder. Smart weight loss.
+key benefits:
+
+165g calories per 50g of serving.
+High satiety fibre that keeps you full for hours on end.
+Low glycemic index to help manage blood sugar, decreasing cravings.
+NO 3. Nexo pure evolution (match with overall fitness support)
+price per gram: 2.5/g
+icon color: leaf green, emoticon of leaf
+description: Clean, green, unstoppable. The ultimate superfood dose. Abundantly bioavailable B-Vitamins and antioxidants for the clean eating purist.
+Key benefits:
+
+Antioxidant rich seeds for cellular health.
+Free of artificial gums, thickeners, and additives.
+Abundantly bioavailable micronutrients.
+NO 4. Nexo momentum mix(match with energy levels)
+price per gram: INR 1.75/g
+icon color: cobalt blue emoticon of running person
+description: Beat the 3PM slump. Meetings back to back? School draining your energy? Unable to work because you feel constantly low on energy? Replace that fourth coffee or energy drink with a shot of our stress-busting and energy-sustaining magnesium loaded shot.
+Key benefits:
+
+Sustained glucose release from premium dates.
+Digestively comforting blend to prevent bloating due to low energy.
+Magnesium rich shot for stress management.
+NO 5. Nexo Vitality Blend (Match with overall senior health improvment)
+price per gram: INR 1/g
+icon color: Royal purple, emoticon of an old person smiling
+description: Strength that ages gracefully. Easy to digest plant protien designed for bone density and heart health along with overall health improvement. Pure nutrition for your golden years.
+Key benefits:
+
+Enriched with heart healthy omega 3s.
+Easy to digest plant protien for muscle maintenance.
+High fibre for gut regularity.
+Boosted with multivitamins and micronutrients for improving overall bodily performance.
+NO 6. Nexo Brain sharpener(match with Improved brain performance)
+Price per gram: INR 1/g
+Icon color: Yellow, emoticon of brain
+Description: focus, memory, clarity. Exam season? Feed your brain the zinc and omega-3 it craves. Replace sugar crashes with mental stamina to sustain your long hours of intense study.
+Key benfits:
+
+Vitamin E for memory retention.
+High Zinc and Omega-3that improves cognitive clarity.
+Zero sugar energy to avoid slumps due to sugar rushes or crashes.
+NO 7. Nexo Little champ (match with Kids health)
+Price per gram: INR1.5/g
+icon color: Bright organge, emoticon of kid wearing hat
+description: Stronger bones, higher energy. The natural alternative to sugary malts which are pumped with preservatives. Made with love using high calcium makhana and iron from dates for your growing champion.
+Key benfits:
+
+Calcium dense fox nuts of skeletal development.

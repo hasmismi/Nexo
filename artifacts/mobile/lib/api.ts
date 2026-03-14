@@ -26,7 +26,7 @@ export const api = {
   submitOnboarding: (data: {
     account_id: number;
     name: string;
-    age: number;
+    date_of_birth: string;
     gender: string;
     height_cm: number;
     weight_kg: number;
@@ -45,22 +45,40 @@ export const api = {
         account_id: number;
         name: string;
         age: number;
+        date_of_birth: string;
         gender: string;
         height_cm: number;
         weight_kg: number;
         bmi: number;
         phone_number: string;
       };
+      user_goals: { goal_id: number; goal_name: string; rank: number }[];
+      all_goals: { id: number; name: string }[];
       recommendations: {
         product_id: number;
         product_name: string;
         grams: number;
         grams_per_day: number;
         goal_name: string;
+        price_per_gram: number;
+        icon_emoji: string;
+        icon_color: string;
       }[];
       total_grams_per_month: number;
       grams_per_day: number;
     }>(`/dashboard?account_id=${account_id}`),
+
+  updateGoals: (data: { account_id: number; goals: { goal_id: number; rank: number }[] }) =>
+    request<{ success: boolean; message: string }>("/goals/update", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
+  updateProfile: (data: { account_id: number; height_cm?: number; weight_kg?: number }) =>
+    request<{ success: boolean; message: string }>("/goals/profile", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
 
   getProducts: () =>
     request<{
@@ -73,6 +91,9 @@ export const api = {
         goal_name: string;
         is_trial: boolean;
         trial_price?: number;
+        key_benefits: string[];
+        icon_color: string;
+        icon_emoji: string;
       }[];
     }>("/products"),
 

@@ -10,6 +10,9 @@ export const productsTable = pgTable("products", {
   price_per_gram: real("price_per_gram").notNull(),
   goal_id: integer("goal_id").references(() => goalsTable.id),
   is_trial: boolean("is_trial").default(false).notNull(),
+  key_benefits: text("key_benefits").notNull().default("[]"),
+  icon_color: text("icon_color").notNull().default("#00C27B"),
+  icon_emoji: text("icon_emoji").notNull().default("📦"),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 
