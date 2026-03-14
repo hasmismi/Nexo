@@ -33,7 +33,7 @@ const GOALS_LIST = [
 ];
 
 export default function DashboardScreen() {
-  const { user, logout, setUser } = useApp();
+  const { user, logout } = useApp();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
 
@@ -47,24 +47,6 @@ export default function DashboardScreen() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [logoutVisible, setLogoutVisible] = useState(false);
   const [cartToast, setCartToast] = useState(false);
-  const [claimingAdmin, setClaimingAdmin] = useState(false);
-  const [adminToast, setAdminToast] = useState<string | null>(null);
-
-  const claimAdmin = async () => {
-    if (!user) return;
-    setClaimingAdmin(true);
-    try {
-      const result = await api.adminBootstrap(user.account_id);
-      if (result.success) {
-        setUser({ ...user, is_admin: true });
-        setAdminToast("You are now an admin!");
-      }
-    } catch (err: any) {
-      setAdminToast(err.message ?? "Failed to claim admin");
-    } finally {
-      setClaimingAdmin(false);
-    }
-  };
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["dashboard", user?.account_id],
@@ -393,15 +375,8 @@ export default function DashboardScreen() {
             <ActionCard icon="shopping-cart" label="Cart" badge={cartCount} onPress={() => router.push("/cart")} />
             <ActionCard icon="box" label="My Orders" onPress={() => router.push("/orders")} />
             <ActionCard icon="headphones" label="Support" onPress={() => router.push("/support")} />
-            {user?.is_admin ? (
+            {user?.is_admin && (
               <ActionCard icon="shield" label="Admin Panel" onPress={() => router.push("/admin")} color={Colors.primary} />
-            ) : (
-              <ActionCard
-                icon="shield"
-                label={claimingAdmin ? "Claiming…" : "Claim Admin"}
-                onPress={claimAdmin}
-                color={Colors.dark.textTertiary}
-              />
             )}
           </View>
         </View>
@@ -509,12 +484,6 @@ export default function DashboardScreen() {
         message="Added to cart!"
         icon="shopping-cart"
         onHide={() => setCartToast(false)}
-      />
-      <Toast
-        visible={!!adminToast}
-        message={adminToast ?? ""}
-        icon="shield"
-        onHide={() => setAdminToast(null)}
       />
     </>
   );
