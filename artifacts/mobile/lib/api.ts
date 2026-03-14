@@ -24,7 +24,7 @@ export const api = {
     }),
 
   login: (data: { email: string; password: string }) =>
-    request<{ account_id: number; email: string; onboarding_completed: boolean }>("/auth/login", {
+    request<{ account_id: number; email: string; onboarding_completed: boolean; is_admin: boolean }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -153,6 +153,48 @@ export const api = {
     request<{ orders: Order[] }>(`/orders?account_id=${account_id}`),
 
   getSupport: () => request<{ phone: string; email: string }>("/support"),
+
+  adminBootstrap: (account_id: number) =>
+    request<{ success: boolean; message: string }>("/admin/bootstrap", {
+      method: "POST",
+      body: JSON.stringify({ account_id }),
+    }),
+
+  adminStats: (account_id: number) =>
+    request<{
+      total_users: number;
+      total_orders: number;
+      total_revenue: number;
+      today_orders: number;
+      pending_orders: number;
+    }>(`/admin/stats?account_id=${account_id}`),
+
+  adminOrders: (account_id: number) =>
+    request<{ orders: AdminOrder[] }>(`/admin/orders?account_id=${account_id}`),
+
+  adminUpdateOrderStatus: (account_id: number, order_id: number, order_status: string) =>
+    request<{ success: boolean }>(`/admin/orders/${order_id}/status`, {
+      method: "PUT",
+      body: JSON.stringify({ account_id, order_status }),
+    }),
+
+  adminUsers: (account_id: number) =>
+    request<{ users: AdminUser[] }>(`/admin/users?account_id=${account_id}`),
+
+  adminToggleAdmin: (account_id: number, target_id: number) =>
+    request<{ success: boolean; is_admin: boolean }>(`/admin/users/${target_id}/toggle-admin`, {
+      method: "PUT",
+      body: JSON.stringify({ account_id }),
+    }),
+
+  adminProducts: (account_id: number) =>
+    request<{ products: AdminProduct[] }>(`/admin/products?account_id=${account_id}`),
+
+  adminUpdateProduct: (account_id: number, product_id: number, updates: Partial<AdminProduct>) =>
+    request<{ product: AdminProduct }>(`/admin/products/${product_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ account_id, ...updates }),
+    }),
 };
 
 export interface CartItem {
@@ -162,6 +204,56 @@ export interface CartItem {
   product_name: string;
   grams: number;
   price: number;
+}
+
+export interface AdminOrder {
+  id: number;
+  account_id: number;
+  email: string | null;
+  customer_name: string | null;
+  delivery_name: string | null;
+  delivery_phone: string | null;
+  delivery_address: string | null;
+  delivery_city: string | null;
+  delivery_pincode: string | null;
+  payment_method: string | null;
+  delivery_fee: number;
+  order_status: string;
+  razorpay_payment_id: string | null;
+  created_at: string;
+  items: { order_id: number; product_name: string | null; quantity: number; unit_price: number }[];
+}
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  is_admin: boolean;
+  name: string | null;
+  phone_number: string | null;
+  gender: string | null;
+  age: number | null;
+  onboarding_completed: boolean | null;
+  created_at: string;
+  order_count: number;
+}
+
+export interface AdminProduct {
+  id: number;
+  name: string;
+  description: string;
+  price_per_gram: number;
+  goal_id: number | null;
+  is_trial: boolean;
+  key_benefits: string;
+  icon_color: string;
+  icon_emoji: string;
+  nutrition_energy_kcal: number | null;
+  nutrition_protein_g: number | null;
+  nutrition_fat_g: number | null;
+  nutrition_carbs_g: number | null;
+  nutrition_fibre_g: number | null;
+  nutrition_sugars_g: number | null;
+  nutrition_added_sugars_g: number | null;
 }
 
 export interface Order {

@@ -9,6 +9,7 @@ import ordersRouter from "./orders";
 import supportRouter from "./support";
 import goalsRouter from "./goals";
 import paymentRouter from "./payment";
+import adminRouter from "./admin";
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use("/orders", ordersRouter);
 router.use("/support", supportRouter);
 router.use("/goals", goalsRouter);
 router.use("/payment", paymentRouter);
+router.use("/admin", adminRouter);
 
 export default router;

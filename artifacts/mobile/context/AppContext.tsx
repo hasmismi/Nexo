@@ -5,6 +5,7 @@ interface AppUser {
   account_id: number;
   email: string;
   onboarding_completed: boolean;
+  is_admin?: boolean;
 }
 
 interface AppContextValue {

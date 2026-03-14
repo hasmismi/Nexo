@@ -19,6 +19,7 @@ export const ordersTable = pgTable("orders", {
   delivery_lng: doublePrecision("delivery_lng"),
   delivery_fee: real("delivery_fee").default(0).notNull(),
   razorpay_payment_id: text("razorpay_payment_id"),
+  order_status: text("order_status").default("pending").notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -77,7 +77,7 @@ router.post("/login", async (req, res) => {
 
     const onboarding_completed = profile.length > 0 && profile[0].onboarding_completed;
 
-    return res.json({ account_id: acc.id, email: acc.email, onboarding_completed });
+    return res.json({ account_id: acc.id, email: acc.email, onboarding_completed, is_admin: acc.is_admin });
   } catch (err) {
     console.error("login error:", err);
     return res.status(500).json({ message: "Internal server error" });

@@ -33,7 +33,7 @@ const GOALS_LIST = [
 ];
 
 export default function DashboardScreen() {
-  const { user, logout } = useApp();
+  const { user, logout, setUser } = useApp();
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
 
@@ -47,6 +47,24 @@ export default function DashboardScreen() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [logoutVisible, setLogoutVisible] = useState(false);
   const [cartToast, setCartToast] = useState(false);
+  const [claimingAdmin, setClaimingAdmin] = useState(false);
+  const [adminToast, setAdminToast] = useState<string | null>(null);
+
+  const claimAdmin = async () => {
+    if (!user) return;
+    setClaimingAdmin(true);
+    try {
+      const result = await api.adminBootstrap(user.account_id);
+      if (result.success) {
+        setUser({ ...user, is_admin: true });
+        setAdminToast("You are now an admin!");
+      }
+    } catch (err: any) {
+      setAdminToast(err.message ?? "Failed to claim admin");
+    } finally {
+      setClaimingAdmin(false);
+    }
+  };
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["dashboard", user?.account_id],
@@ -375,6 +393,16 @@ export default function DashboardScreen() {
             <ActionCard icon="shopping-cart" label="Cart" badge={cartCount} onPress={() => router.push("/cart")} />
             <ActionCard icon="box" label="My Orders" onPress={() => router.push("/orders")} />
             <ActionCard icon="headphones" label="Support" onPress={() => router.push("/support")} />
+            {user?.is_admin ? (
+              <ActionCard icon="shield" label="Admin Panel" onPress={() => router.push("/admin")} color={Colors.primary} />
+            ) : (
+              <ActionCard
+                icon="shield"
+                label={claimingAdmin ? "Claiming…" : "Claim Admin"}
+                onPress={claimAdmin}
+                color={Colors.dark.textTertiary}
+              />
+            )}
           </View>
         </View>
       </ScrollView>
@@ -482,6 +510,12 @@ export default function DashboardScreen() {
         icon="shopping-cart"
         onHide={() => setCartToast(false)}
       />
+      <Toast
+        visible={!!adminToast}
+        message={adminToast ?? ""}
+        icon="shield"
+        onHide={() => setAdminToast(null)}
+      />
     </>
   );
 }
@@ -513,14 +547,15 @@ function MetricItem({ label, value, accent }: { label: string; value: string; ac
   );
 }
 
-function ActionCard({ icon, label, badge, onPress }: { icon: string; label: string; badge?: number; onPress: () => void }) {
+function ActionCard({ icon, label, badge, onPress, color }: { icon: string; label: string; badge?: number; onPress: () => void; color?: string }) {
+  const iconColor = color ?? Colors.primary;
   return (
     <Pressable
       style={({ pressed }) => [styles.actionCard, pressed && { opacity: 0.75 }]}
       onPress={() => { Haptics.selectionAsync(); onPress(); }}
     >
       <View style={styles.actionIconWrap}>
-        <Feather name={icon as any} size={22} color={Colors.primary} />
+        <Feather name={icon as any} size={22} color={iconColor} />
         {!!badge && badge > 0 && (
           <View style={styles.actionBadge}>
             <Text style={styles.actionBadgeText}>{badge}</Text>
