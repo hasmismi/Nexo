@@ -37,8 +37,18 @@ function calcAge(dob: string): number | null {
   if (parts.length !== 3) return null;
   const [dd, mm, yyyy] = parts;
   if (!dd || !mm || !yyyy || yyyy.length < 4) return null;
-  const birth = new Date(parseInt(yyyy), parseInt(mm) - 1, parseInt(dd));
-  if (isNaN(birth.getTime())) return null;
+  const day = parseInt(dd, 10);
+  const month = parseInt(mm, 10);
+  const year = parseInt(yyyy, 10);
+  if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+  if (month < 1 || month > 12) return null;
+  if (day < 1 || day > 31) return null;
+  const birth = new Date(year, month - 1, day);
+  if (
+    birth.getFullYear() !== year ||
+    birth.getMonth() !== month - 1 ||
+    birth.getDate() !== day
+  ) return null;
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();

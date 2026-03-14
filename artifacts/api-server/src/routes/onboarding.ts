@@ -6,7 +6,11 @@ import { eq } from "drizzle-orm";
 const router = Router();
 
 function calcAge(dob: string): number {
-  const birth = new Date(dob);
+  // Expects YYYY-MM-DD format
+  const [yyyy, mm, dd] = dob.split("-").map(Number);
+  if (!yyyy || !mm || !dd || isNaN(yyyy) || isNaN(mm) || isNaN(dd)) return 0;
+  const birth = new Date(yyyy, mm - 1, dd);
+  if (isNaN(birth.getTime())) return 0;
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
