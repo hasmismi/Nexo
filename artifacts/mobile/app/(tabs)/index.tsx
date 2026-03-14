@@ -85,7 +85,7 @@ export default function DashboardScreen() {
           </Pressable>
           <Pressable
             style={styles.headerBtn}
-            onPress={() => { Haptics.selectionAsync(); logout(); router.replace("/"); }}
+            onPress={() => { Haptics.selectionAsync(); logout(); }}
           >
             <Feather name="log-out" size={20} color={Colors.dark.textSecondary} />
           </Pressable>

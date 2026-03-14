@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
+import { Platform } from "react-native";
+import { router } from "expo-router";
 
 interface AppUser {
   account_id: number;
@@ -11,7 +13,7 @@ interface AppContextValue {
   user: AppUser | null;
   isLoading: boolean;
   setUser: (user: AppUser | null) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   cartCount: number;
   setCartCount: (count: number) => void;
 }
@@ -41,9 +43,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
+  const logout = async () => {
+    await AsyncStorage.removeItem("nexo_user");
+    setUserState(null);
     setCartCount(0);
+    if (Platform.OS === "web") {
+      // On web, a full reload is the most reliable way to reset all state
+      window.location.href = "/";
+    } else {
+      router.replace("/");
+    }
   };
 
   const value = useMemo<AppContextValue>(
