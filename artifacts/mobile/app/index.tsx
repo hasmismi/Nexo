@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform, Alert } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image, Alert } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as WebBrowser from "expo-web-browser";
 import * as AuthSession from "expo-auth-session";
@@ -13,15 +13,6 @@ import Colors from "@/constants/colors";
 // Required for web OAuth popup flow to complete properly
 WebBrowser.maybeCompleteAuthSession();
 
-const ICON_MAP: Record<string, { feather: string; label: string }> = {
-  "run":            { feather: "activity", label: "Weight Loss" },
-  "weight-lifter":  { feather: "zap",      label: "Muscle" },
-  "dumbbell":       { feather: "zap",      label: "Muscle" },
-  "brain":          { feather: "cpu",      label: "Brain" },
-  "lightning-bolt": { feather: "zap",      label: "Energy" },
-  "zap":            { feather: "zap",      label: "Energy" },
-  "leaf":           { feather: "feather",  label: "Vitality" },
-};
 
 const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
 
@@ -197,11 +188,7 @@ export default function LoginScreen() {
 function Pill({ label, mci, color }: { label: string; mci: string; color: string }) {
   return (
     <View style={[styles.pill, { borderColor: color + "40" }]}>
-      {Platform.OS === "android" ? (
-        <Feather name={ICON_MAP[mci]?.feather as any ?? "circle"} size={14} color={color} />
-      ) : (
-        <MaterialCommunityIcons name={mci as any} size={14} color={color} />
-      )}
+      <MaterialCommunityIcons name={mci as any} size={14} color={color} />
       <Text style={[styles.pillText, { color }]}>{label}</Text>
     </View>
   );
