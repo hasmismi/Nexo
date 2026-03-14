@@ -1,9 +1,11 @@
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform, Alert } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
@@ -17,9 +19,32 @@ const ICON_MAP: Record<string, { feather: string; label: string }> = {
   "leaf": { feather: "leaf", label: "Vitality" },
 };
 
+// Google OAuth config - get these from Google Cloud Console
+// https://console.cloud.google.com/
+const GOOGLE_CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_SECRET = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_SECRET || "";
+
+// For web/Replit
+const discovery = {
+  authorizationEndpoint: "https://accounts.google.com/o/oauth2/v2/auth",
+  tokenEndpoint: "https://www.googleapis.com/oauth2/v4/token",
+  revocationEndpoint: "https://oauth2.googleapis.com/revoke",
+};
+
 export default function LoginScreen() {
   const { user, isLoading, setUser } = useApp();
   const insets = useSafeAreaInsets();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(
+    {
+      clientId: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      scopes: ["profile", "email"],
+      redirectUrl: AuthSession.getRedirectUrl(),
+    },
+    discovery
+  );
 
   useEffect(() => {
     if (!isLoading && user) {
@@ -31,22 +56,65 @@ export default function LoginScreen() {
     }
   }, [user, isLoading]);
 
-  const handleGoogleLogin = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      if (authentication?.accessToken) {
+        handleGoogleLoginWithToken(authentication.accessToken);
+      }
+    }
+  }, [response]);
+
+  const handleGoogleLoginWithToken = async (accessToken: string) => {
     try {
+      // Get user info from Google
+      const userInfoRes = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      );
+      const userInfo = await userInfoRes.json();
+
+      if (!userInfoRes.ok) {
+        throw new Error(userInfo.error?.message || "Failed to get user info");
+      }
+
+      // Login with backend
       const result = await api.googleLogin({
-        google_id: "demo_google_id_" + Date.now(),
-        email: "demo@nexoapp.com",
-        name: "Nexo User",
+        google_id: userInfo.id,
+        email: userInfo.email,
+        name: userInfo.name,
       });
+
       setUser(result);
       if (result.onboarding_completed) {
         router.replace("/(tabs)");
       } else {
         router.replace("/onboarding");
       }
-    } catch (err) {
-      console.error("Login error:", err);
+    } catch (err: any) {
+      console.error("Google login error:", err);
+      Alert.alert("Login Error", err.message || "Failed to sign in with Google");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!GOOGLE_CLIENT_ID) {
+      Alert.alert(
+        "Setup Required",
+        "Google OAuth is not configured. Please set EXPO_PUBLIC_GOOGLE_CLIENT_ID environment variable."
+      );
+      return;
+    }
+    setIsLoggingIn(true);
+    try {
+      await promptAsync();
+    } catch (err: any) {
+      console.error("Google prompt error:", err);
+      Alert.alert("Login Error", err.message || "Failed to open Google sign-in");
+      setIsLoggingIn(false);
     }
   };
 
@@ -91,13 +159,20 @@ export default function LoginScreen() {
 
       <View style={styles.bottomSection}>
         <Pressable
-          style={({ pressed }) => [styles.googleButton, pressed && styles.pressed]}
+          style={({ pressed }) => [styles.googleButton, pressed && styles.pressed, isLoggingIn && { opacity: 0.6 }]}
           onPress={handleGoogleLogin}
+          disabled={isLoggingIn || !request}
         >
-          <View style={styles.googleIcon}>
-            <Text style={styles.googleG}>G</Text>
-          </View>
-          <Text style={styles.googleButtonText}>Continue with Google</Text>
+          {isLoggingIn ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <>
+              <View style={styles.googleIcon}>
+                <Text style={styles.googleG}>G</Text>
+              </View>
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
+            </>
+          )}
         </Pressable>
 
         <Text style={styles.terms}>
