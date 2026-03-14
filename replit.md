@@ -1,8 +1,8 @@
-# Workspace
+# Nexo App
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+Nexo is a personalized nutrition mobile app built with Expo React Native and a Node.js/PostgreSQL backend. Users sign in, complete onboarding, and receive tailored product recommendations based on their health goals.
 
 ## Stack
 
@@ -14,83 +14,82 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
-- **Build**: esbuild (CJS bundle)
+- **Mobile**: Expo SDK 54 + Expo Router (file-based routing)
+- **State**: React Query + Context API + AsyncStorage
 
 ## Structure
 
 ```text
 artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
+├── artifacts/
+│   ├── api-server/         # Express API server
+│   └── mobile/             # Expo React Native app
+├── lib/
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/
+├── pnpm-workspace.yaml
+├── tsconfig.base.json
+└── tsconfig.json
 ```
 
-## TypeScript & Composite Projects
+## Mobile App Screens
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+- **Login** (`app/index.tsx`) — Google Sign-In with demo mode
+- **Onboarding** (`app/onboarding.tsx`) — 2-step: profile details + goal selection
+- **Dashboard** (`app/(tabs)/index.tsx`) — BMI, nutrition plan, quick actions
+- **Products** (`app/(tabs)/products.tsx`) — Product catalog with add-to-cart modal
+- **Cart** (`app/cart.tsx`) — Cart management and checkout
+- **Orders** (`app/orders.tsx`) — Order history with status
+- **Support** (`app/support.tsx`) — Contact info and FAQ accordion
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+## API Endpoints
 
-## Root Scripts
+- `POST /api/auth/google-login`
+- `POST /api/onboarding`
+- `GET /api/dashboard?account_id=:id`
+- `GET /api/products`
+- `POST /api/cart/add`
+- `GET /api/cart?account_id=:id`
+- `DELETE /api/cart/item/:id`
+- `POST /api/checkout`
+- `GET /api/orders?account_id=:id`
+- `GET /api/support`
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+## Database Tables
 
-## Packages
+- `accounts` — Google auth records
+- `profiles` — User profile + BMI (auto-calculated)
+- `goals` — Nutrition goal types (weight_loss, muscle_gain, immunity, energy, vitamins)
+- `user_goals` — User's ranked goal selections (max 2)
+- `products` — Nutrition powder catalog
+- `cart_items` — Shopping cart items
+- `orders` + `order_items` — Purchase history
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## Recommendation Logic
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+- Weight > 60kg → 1500g/month
+- Weight > 50kg → 1300g/month
+- Weight > 40kg → 1000g/month
+- Otherwise → 800g/month
+- If 2 goals selected, split grams evenly
+- Daily serving = total_grams / 30
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+## Seed Data
 
-### `lib/db` (`@workspace/db`)
+Products seeded:
+- Nexo Lean (₹0.85/g, weight_loss)
+- Nexo Protein (₹0.90/g, muscle_gain)
+- Nexo Immunity (₹0.75/g, immunity)
+- Nexo Energy (₹0.80/g, energy)
+- Nexo Vitamins (₹0.70/g, vitamins)
+- Trial Pack (₹399 flat, is_trial=true)
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+## Design Theme
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
-
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- Dark mode only: background #0A0A0A, surface #141414
+- Primary accent: #00C27B (green)
+- Secondary accent: #FF6B35 (orange)
+- Font: Inter (400, 500, 600, 700)

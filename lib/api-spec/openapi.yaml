@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Nexo App API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: onboarding
+    description: User onboarding
+  - name: dashboard
+    description: Dashboard data
+  - name: products
+    description: Product catalog
+  - name: cart
+    description: Shopping cart
+  - name: orders
+    description: Order management
+  - name: support
+    description: Support info
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +37,185 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/google-login:
+    post:
+      operationId: googleLogin
+      tags: [auth]
+      summary: Google login / register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GoogleLoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /onboarding:
+    post:
+      operationId: submitOnboarding
+      tags: [onboarding]
+      summary: Submit onboarding data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnboardingRequest"
+      responses:
+        "200":
+          description: Onboarding completed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnboardingResponse"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard data
+      parameters:
+        - name: account_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardResponse"
+
+  /products:
+    get:
+      operationId: getProducts
+      tags: [products]
+      summary: Get all products
+      responses:
+        "200":
+          description: Product list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductsResponse"
+
+  /cart/add:
+    post:
+      operationId: addToCart
+      tags: [cart]
+      summary: Add item to cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddToCartRequest"
+      responses:
+        "200":
+          description: Item added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+
+  /cart:
+    get:
+      operationId: getCart
+      tags: [cart]
+      summary: Get cart items
+      parameters:
+        - name: account_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Cart items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CartResponse"
+
+  /cart/item/{id}:
+    delete:
+      operationId: removeCartItem
+      tags: [cart]
+      summary: Remove item from cart
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Item removed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /checkout:
+    post:
+      operationId: checkout
+      tags: [orders]
+      summary: Checkout and create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckoutRequest"
+      responses:
+        "200":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+
+  /orders:
+    get:
+      operationId: getOrders
+      tags: [orders]
+      summary: Get orders for account
+      parameters:
+        - name: account_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrdersResponse"
+
+  /support:
+    get:
+      operationId: getSupport
+      tags: [support]
+      summary: Get support contact info
+      responses:
+        "200":
+          description: Support info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +223,268 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    GoogleLoginRequest:
+      type: object
+      properties:
+        google_id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+      required: [google_id, email]
+
+    AuthResponse:
+      type: object
+      properties:
+        account_id:
+          type: integer
+        email:
+          type: string
+        onboarding_completed:
+          type: boolean
+      required: [account_id, email, onboarding_completed]
+
+    OnboardingRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        height_cm:
+          type: number
+        weight_kg:
+          type: number
+        phone_number:
+          type: string
+        goals:
+          type: array
+          items:
+            $ref: "#/components/schemas/GoalRanking"
+      required: [account_id, name, age, gender, height_cm, weight_kg, phone_number, goals]
+
+    GoalRanking:
+      type: object
+      properties:
+        goal_id:
+          type: integer
+        rank:
+          type: integer
+      required: [goal_id, rank]
+
+    OnboardingResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        profile_id:
+          type: integer
+        message:
+          type: string
+      required: [success, message]
+
+    DashboardResponse:
+      type: object
+      properties:
+        profile:
+          $ref: "#/components/schemas/Profile"
+        recommendations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Recommendation"
+        total_grams_per_month:
+          type: integer
+        grams_per_day:
+          type: number
+      required: [profile, recommendations, total_grams_per_month, grams_per_day]
+
+    Profile:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        name:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        height_cm:
+          type: number
+        weight_kg:
+          type: number
+        bmi:
+          type: number
+        phone_number:
+          type: string
+      required: [id, account_id, name, age, gender, height_cm, weight_kg, bmi, phone_number]
+
+    Recommendation:
+      type: object
+      properties:
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        grams:
+          type: integer
+        grams_per_day:
+          type: number
+        goal_name:
+          type: string
+      required: [product_id, product_name, grams, grams_per_day, goal_name]
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        price_per_gram:
+          type: number
+        goal_id:
+          type: integer
+        goal_name:
+          type: string
+        is_trial:
+          type: boolean
+        trial_price:
+          type: number
+      required: [id, name, description, price_per_gram, goal_id, goal_name, is_trial]
+
+    ProductsResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required: [products]
+
+    AddToCartRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+        product_id:
+          type: integer
+        grams:
+          type: integer
+      required: [account_id, product_id, grams]
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        grams:
+          type: integer
+        price:
+          type: number
+      required: [id, account_id, product_id, product_name, grams, price]
+
+    CartResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CartItem"
+        total_price:
+          type: number
+      required: [items, total_price]
+
+    CheckoutRequest:
+      type: object
+      properties:
+        account_id:
+          type: integer
+      required: [account_id]
+
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        product_id:
+          type: integer
+        product_name:
+          type: string
+        grams:
+          type: integer
+        price:
+          type: number
+      required: [id, product_id, product_name, grams, price]
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        account_id:
+          type: integer
+        total_price:
+          type: number
+        status:
+          type: string
+        tracking_link:
+          type: string
+        created_at:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+      required: [id, account_id, total_price, status, created_at, items]
+
+    OrderResponse:
+      type: object
+      properties:
+        order:
+          $ref: "#/components/schemas/Order"
+        message:
+          type: string
+      required: [order, message]
+
+    OrdersResponse:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+      required: [orders]
+
+    SupportResponse:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+      required: [phone, email]
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]

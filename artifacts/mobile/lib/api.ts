@@ -1,0 +1,126 @@
+const BASE = process.env.EXPO_PUBLIC_API_URL ?? "/api";
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const url = `${BASE}${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options?.headers ?? {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: "Unknown error" }));
+    throw new Error(err.message ?? "Request failed");
+  }
+  return res.json();
+}
+
+export const api = {
+  googleLogin: (data: { google_id: string; email: string; name?: string }) =>
+    request<{ account_id: number; email: string; onboarding_completed: boolean }>("/auth/google-login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  submitOnboarding: (data: {
+    account_id: number;
+    name: string;
+    age: number;
+    gender: string;
+    height_cm: number;
+    weight_kg: number;
+    phone_number: string;
+    goals: { goal_id: number; rank: number }[];
+  }) =>
+    request<{ success: boolean; profile_id?: number; message: string }>("/onboarding", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  getDashboard: (account_id: number) =>
+    request<{
+      profile: {
+        id: number;
+        account_id: number;
+        name: string;
+        age: number;
+        gender: string;
+        height_cm: number;
+        weight_kg: number;
+        bmi: number;
+        phone_number: string;
+      };
+      recommendations: {
+        product_id: number;
+        product_name: string;
+        grams: number;
+        grams_per_day: number;
+        goal_name: string;
+      }[];
+      total_grams_per_month: number;
+      grams_per_day: number;
+    }>(`/dashboard?account_id=${account_id}`),
+
+  getProducts: () =>
+    request<{
+      products: {
+        id: number;
+        name: string;
+        description: string;
+        price_per_gram: number;
+        goal_id: number;
+        goal_name: string;
+        is_trial: boolean;
+        trial_price?: number;
+      }[];
+    }>("/products"),
+
+  addToCart: (data: { account_id: number; product_id: number; grams: number }) =>
+    request<{ items: CartItem[]; total_price: number }>("/cart/add", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  getCart: (account_id: number) =>
+    request<{ items: CartItem[]; total_price: number }>(`/cart?account_id=${account_id}`),
+
+  removeCartItem: (id: number) =>
+    request<{ message: string }>(`/cart/item/${id}`, { method: "DELETE" }),
+
+  checkout: (account_id: number) =>
+    request<{ order: Order; message: string }>("/checkout", {
+      method: "POST",
+      body: JSON.stringify({ account_id }),
+    }),
+
+  getOrders: (account_id: number) =>
+    request<{ orders: Order[] }>(`/orders?account_id=${account_id}`),
+
+  getSupport: () => request<{ phone: string; email: string }>("/support"),
+};
+
+export interface CartItem {
+  id: number;
+  account_id: number;
+  product_id: number;
+  product_name: string;
+  grams: number;
+  price: number;
+}
+
+export interface Order {
+  id: number;
+  account_id: number;
+  total_price: number;
+  status: string;
+  tracking_link?: string;
+  created_at: string;
+  items: {
+    id: number;
+    product_id: number;
+    product_name: string;
+    grams: number;
+    price: number;
+  }[];
+}

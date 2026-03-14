@@ -1,0 +1,220 @@
+NEXO APP – VERSION 1 SPECIFICATION
+This document defines the Version 1 functionality for the Nexo mobile application.
+The app provides personalized nutrition product recommendations and allows users to purchase products directly from the app.
+________________________________________
+TECHNOLOGY ASSUMPTIONS
+Mobile App:
+Android (Kotlin)
+Authentication:
+Google Login using Google Sign-In API
+Backend:
+Node.js + Express
+Database:
+PostgreSQL
+________________________________________
+ACCOUNT SYSTEM
+Users sign into the app using Google Login.
+The Google account will create an Account record in the database.
+Accounts table fields:
+id
+google_id
+email
+created_at
+________________________________________
+ONBOARDING (FIRST TIME ONLY)
+After first login, users must complete onboarding.
+Onboarding collects the following data:
+name
+age
+gender
+height_cm
+weight_kg
+phone_number
+Users must also rank nutrition goals.
+Users can select up to TWO goals and rank them.
+Example goals:
+weight_loss
+muscle_gain
+immunity
+energy
+vitamins
+Goals table:
+id
+name
+UserGoals table:
+profile_id
+goal_id
+rank
+After onboarding is completed, onboarding should not be shown again.
+________________________________________
+PROFILE DATA
+Profile table fields:
+Profiles
+id
+account_id
+name
+age
+gender
+height_cm
+weight_kg
+bmi
+phone_number
+created_at
+BMI must be calculated automatically from height and weight and stored.
+BMI is displayed on the dashboard but does not affect product choice.
+________________________________________
+PRODUCT SYSTEM
+Products represent nutrition powders sold in the app.
+Products table:
+id
+name
+description
+price_per_gram
+goal_id
+is_trial
+created_at
+Example products:
+Nexo Lean
+Nexo Protein
+Nexo Immunity
+One special product exists:
+Trial Pack
+price = 399
+is_trial = true
+________________________________________
+RECOMMENDATION SYSTEM
+Recommendations are generated after onboarding.
+Logic:
+1.	Read the user's ranked goals.
+2.	Find products matching those goals.
+If user selected ONE goal:
+Recommend one product.
+If user selected TWO goals:
+Recommend two products.
+________________________________________
+RECOMMENDED MONTHLY POWDER
+Monthly recommended powder amount is based on user weight.
+Rules:
+weight > 60kg → 1500 grams per month
+weight > 50kg → 1300 grams per month
+weight > 40kg → 1000 grams per month
+otherwise → 800 grams
+If two products are recommended, split total grams evenly between them.
+Example:
+1500g monthly recommendation
+→ 750g product A
+→ 750g product B
+________________________________________
+SERVING SIZE CALCULATION
+Daily serving is calculated as:
+grams_per_day = total_grams / 30
+If two products exist:
+grams_per_day_per_product = grams_per_day / 2
+________________________________________
+DASHBOARD SCREEN
+The Dashboard displays:
+User information:
+name
+age
+gender
+height
+weight
+bmi
+Recommended Plan section:
+Recommended product(s)
+grams per product
+grams per day
+30-day supply message
+Example display:
+Recommended Plan
+Nexo Lean – 750g
+Nexo Protein – 750g
+Daily Serving
+25g Lean + 25g Protein
+30 Day Supply
+Buttons / navigation links:
+Products
+Cart
+My Orders
+Support
+________________________________________
+PRODUCT PAGE
+The Products page displays the full product catalog.
+Each product card includes:
+product name
+description
+price_per_gram
+add_to_cart option
+Users may select the number of grams to purchase.
+Price must be calculated automatically:
+price = grams × price_per_gram
+________________________________________
+CART SYSTEM
+Cart exists per account.
+CartItems table:
+id
+account_id
+product_id
+grams
+price
+Users can add multiple products to cart.
+Cart screen shows:
+product name
+grams
+price
+total price
+Users can remove items from cart.
+________________________________________
+CHECKOUT
+Checkout creates an order.
+Orders table:
+id
+account_id
+total_price
+status
+tracking_link
+created_at
+OrderItems table:
+id
+order_id
+product_id
+grams
+price
+________________________________________
+MY ORDERS PAGE
+Users can view their previous orders.
+Order information includes:
+order number
+product names
+grams purchased
+price
+order status
+tracking link
+________________________________________
+SUPPORT PAGE
+A simple support page must exist.
+Display:
+support phone number
+support email address
+________________________________________
+API ENDPOINTS
+POST /auth/google-login
+POST /onboarding
+GET /dashboard
+GET /products
+POST /cart/add
+GET /cart
+DELETE /cart/item
+POST /checkout
+GET /orders
+GET /support
+________________________________________
+PROJECT STRUCTURE
+The backend project should be organized into:
+src/
+routes/
+controllers/
+services/
+models/
+database/
+Recommendation logic should be implemented in a s

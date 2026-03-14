@@ -5,7 +5,9 @@
  * Nexo App API
  * OpenAPI spec version: 0.1.0
  */
+import type { CartItem } from "./cartItem";
 
-export interface HealthStatus {
-  status: string;
+export interface CartResponse {
+  items: CartItem[];
+  total_price: number;
 }
