@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from "react-native";
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image, Platform } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -7,6 +7,15 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
+
+// Android-safe icon mapping - uses Feather icons that work reliably
+const ICON_MAP: Record<string, { feather: string; label: string }> = {
+  "run": { feather: "activity", label: "Weight Loss" },
+  "dumbbell": { feather: "zap", label: "Muscle" },
+  "brain": { feather: "brain", label: "Brain" },
+  "zap": { feather: "zap", label: "Energy" },
+  "leaf": { feather: "leaf", label: "Vitality" },
+};
 
 export default function LoginScreen() {
   const { user, isLoading, setUser } = useApp();
@@ -102,7 +111,11 @@ export default function LoginScreen() {
 function Pill({ label, mci, color }: { label: string; mci: string; color: string }) {
   return (
     <View style={[styles.pill, { borderColor: color + "40" }]}>
-      <MaterialCommunityIcons name={mci as any} size={14} color={color} />
+      {Platform.OS === "android" ? (
+        <Feather name={ICON_MAP[mci]?.feather ?? "circle"} size={14} color={color} />
+      ) : (
+        <MaterialCommunityIcons name={mci as any} size={14} color={color} />
+      )}
       <Text style={[styles.pillText, { color }]}>{label}</Text>
     </View>
   );

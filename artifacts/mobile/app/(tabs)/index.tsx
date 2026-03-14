@@ -20,6 +20,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
+import { Platform } from "react-native";
 
 const GOALS_LIST = [
   { id: 6,  name: "Muscle Gain",                      mci: "dumbbell", color: "#D9342B" },
@@ -242,7 +243,11 @@ export default function DashboardScreen() {
                 const meta = GOALS_LIST.find((gl) => gl.id === g.goal_id);
                 return (
                   <View key={g.goal_id} style={[styles.goalChip, { borderColor: (meta?.color ?? Colors.primary) + "50" }]}>
-                    <MaterialCommunityIcons name={(meta?.mci ?? "star") as any} size={15} color={meta?.color ?? Colors.primary} />
+                    {Platform.OS === "android" ? (
+                      <Feather name="circle" size={15} color={meta?.color ?? Colors.primary} />
+                    ) : (
+                      <MaterialCommunityIcons name={(meta?.mci ?? "star") as any} size={15} color={meta?.color ?? Colors.primary} />
+                    )}
                     <Text style={styles.goalChipText}>{g.goal_name}</Text>
                   </View>
                 );
@@ -271,7 +276,11 @@ export default function DashboardScreen() {
                   <View key={rec.product_id} style={[styles.planItem, i > 0 && styles.planItemBorder]}>
                     <View style={styles.planItemLeft}>
                       <View style={[styles.planIconWrap, { backgroundColor: (rec.icon_color ?? Colors.primary) + "22" }]}>
-                        <MaterialCommunityIcons name={(rec.icon_emoji ?? "pill") as any} size={20} color={rec.icon_color ?? Colors.primary} />
+                        {Platform.OS === "android" ? (
+                          <Feather name="droplet" size={20} color={rec.icon_color ?? Colors.primary} />
+                        ) : (
+                          <MaterialCommunityIcons name={(rec.icon_emoji ?? "pill") as any} size={20} color={rec.icon_color ?? Colors.primary} />
+                        )}
                       </View>
                       <View>
                         <Text style={styles.planProductName}>{rec.product_name}</Text>
@@ -360,7 +369,11 @@ export default function DashboardScreen() {
                       onPress={() => toggleGoal(goal.id)}
                     >
                       <View style={[styles.goalCardIconWrap, { backgroundColor: goal.color + "22" }]}>
-                        <MaterialCommunityIcons name={goal.mci as any} size={22} color={goal.color} />
+                        {Platform.OS === "android" ? (
+                          <Feather name="circle" size={22} color={goal.color} />
+                        ) : (
+                          <MaterialCommunityIcons name={goal.mci as any} size={22} color={goal.color} />
+                        )}
                       </View>
                       <Text style={[styles.goalCardName, !!sel && { color: Colors.primary }]}>{goal.name}</Text>
                       {sel && (

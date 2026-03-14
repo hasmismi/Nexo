@@ -19,6 +19,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
+import { Platform } from "react-native";
 
 type Product = {
   id: number;
@@ -138,7 +139,11 @@ export default function ProductsScreen() {
               >
                 <View style={styles.trialBannerLeft}>
                   <View style={styles.trialBannerIconWrap}>
-                    <MaterialCommunityIcons name="star-circle" size={32} color={Colors.accent} />
+                    {Platform.OS === "android" ? (
+                      <Feather name="star" size={32} color={Colors.accent} />
+                    ) : (
+                      <MaterialCommunityIcons name="star-circle" size={32} color={Colors.accent} />
+                    )}
                   </View>
                   <View>
                     <Text style={styles.trialBannerTitle}>Try Nexo for 7 Days</Text>
@@ -172,7 +177,11 @@ export default function ProductsScreen() {
                 <>
                   <View style={styles.detailHeader}>
                     <View style={[styles.detailIconBig, { backgroundColor: detailProduct.icon_color + "20" }]}>
-                      <MaterialCommunityIcons name={detailProduct.icon_emoji as any} size={34} color={detailProduct.icon_color} />
+                      {Platform.OS === "android" ? (
+                        <Feather name="droplet" size={34} color={detailProduct.icon_color} />
+                      ) : (
+                        <MaterialCommunityIcons name={detailProduct.icon_emoji as any} size={34} color={detailProduct.icon_color} />
+                      )}
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.detailName}>{detailProduct.name}</Text>
@@ -280,7 +289,11 @@ export default function ProductsScreen() {
                     onPress={() => toggleTrialProduct(p.id)}
                   >
                     <View style={[styles.trialIcon, { backgroundColor: p.icon_color + "20" }]}>
-                      <MaterialCommunityIcons name={p.icon_emoji as any} size={22} color={p.icon_color} />
+                      {Platform.OS === "android" ? (
+                        <Feather name="droplet" size={22} color={p.icon_color} />
+                      ) : (
+                        <MaterialCommunityIcons name={p.icon_emoji as any} size={22} color={p.icon_color} />
+                      )}
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.trialProductName, sel && { color: Colors.primary }]}>{p.name}</Text>
@@ -328,7 +341,11 @@ function ProductCard({ product, onPress }: { product: Product; onPress: () => vo
       onPress={() => { Haptics.selectionAsync(); onPress(); }}
     >
       <View style={[styles.cardIcon, { backgroundColor: product.icon_color + "20" }]}>
-        <MaterialCommunityIcons name={product.icon_emoji as any} size={26} color={product.icon_color} />
+        {Platform.OS === "android" ? (
+          <Feather name="droplet" size={26} color={product.icon_color} />
+        ) : (
+          <MaterialCommunityIcons name={product.icon_emoji as any} size={26} color={product.icon_color} />
+        )}
       </View>
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
