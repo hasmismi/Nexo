@@ -191,7 +191,17 @@ export default function DashboardScreen() {
             </Pressable>
             <Pressable
               style={styles.headerBtn}
-              onPress={() => { Haptics.selectionAsync(); logout(); }}
+              onPress={() => {
+                Haptics.selectionAsync();
+                Alert.alert(
+                  "Log Out",
+                  "Are you sure you want to log out?",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    { text: "Log Out", style: "destructive", onPress: () => logout() },
+                  ]
+                );
+              }}
             >
               <Feather name="log-out" size={20} color={Colors.dark.textSecondary} />
             </Pressable>
