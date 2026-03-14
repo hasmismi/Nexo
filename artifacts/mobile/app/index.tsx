@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Image } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
@@ -62,13 +62,13 @@ export default function LoginScreen() {
 
       <View style={styles.heroSection}>
         <View style={styles.pillRow}>
-          <Pill icon="activity" text="Weight Loss" color={Colors.primary} />
-          <Pill icon="trending-up" text="Muscle Gain" color="#D9342B" />
+          <Pill label="Weight Loss" mci="run" color={Colors.primary} />
+          <Pill label="Muscle Gain" mci="weight-lifter" color="#D9342B" />
         </View>
         <View style={styles.pillRow}>
-          <Pill icon="zap" text="Energy" color={Colors.blue} />
-          <Pill icon="brain" text="Brain Power" color="#F5C518" />
-          <Pill icon="heart" text="Vitality" color="#6A0DAD" />
+          <Pill label="Energy" mci="lightning-bolt" color={Colors.blue} />
+          <Pill label="Brain Power" mci="brain" color="#F5C518" />
+          <Pill label="Vitality" mci="leaf" color="#6A0DAD" />
         </View>
         <Text style={styles.heroText}>
           Small in size,{"\n"}big in benefits
@@ -99,11 +99,11 @@ export default function LoginScreen() {
   );
 }
 
-function Pill({ icon, text, color }: { icon: string; text: string; color: string }) {
+function Pill({ label, mci, color }: { label: string; mci: string; color: string }) {
   return (
     <View style={[styles.pill, { borderColor: color + "40" }]}>
-      <Feather name={icon as any} size={13} color={color} />
-      <Text style={[styles.pillText, { color }]}>{text}</Text>
+      <MaterialCommunityIcons name={mci as any} size={14} color={color} />
+      <Text style={[styles.pillText, { color }]}>{label}</Text>
     </View>
   );
 }

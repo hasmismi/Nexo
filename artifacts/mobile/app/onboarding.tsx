@@ -11,21 +11,21 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "@/context/AppContext";
 import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
 
 const GOALS = [
-  { id: 6,  name: "Muscle Gain",                      icon: "🏋️",  desc: "Build and recover faster" },
-  { id: 7,  name: "Weight Loss",                       icon: "🌬️",  desc: "Burn fat, stay lean" },
-  { id: 8,  name: "Improved Brain Performance",        icon: "🧠",  desc: "Focus, memory, clarity" },
-  { id: 9,  name: "Increase Energy Levels",            icon: "🏃",  desc: "Sustained clean energy" },
-  { id: 10, name: "Kids Health",                       icon: "👒",  desc: "Natural growth support" },
-  { id: 11, name: "Overall Senior Health Improvement", icon: "😊",  desc: "Nutrition for golden years" },
-  { id: 12, name: "Overall Fitness Support",           icon: "🌿",  desc: "Clean, holistic wellness" },
-  { id: 13, name: "Blood Sugar Management",            icon: "🍬",  desc: "Steady energy, zero spikes" },
+  { id: 6,  name: "Muscle Gain",                      mci: "weight-lifter", color: "#D9342B", desc: "Build and recover faster" },
+  { id: 7,  name: "Weight Loss",                       mci: "run",           color: "#A8A8B3", desc: "Burn fat, stay lean" },
+  { id: 8,  name: "Improved Brain Performance",        mci: "brain",         color: "#F5C518", desc: "Focus, memory, clarity" },
+  { id: 9,  name: "Increase Energy Levels",            mci: "lightning-bolt",color: "#1A6FBF", desc: "Sustained clean energy" },
+  { id: 10, name: "Kids Health",                       mci: "account-child", color: "#FF8C00", desc: "Natural growth support" },
+  { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",    color: "#6A0DAD", desc: "Nutrition for golden years" },
+  { id: 12, name: "Overall Fitness Support",           mci: "leaf",          color: "#4CAF50", desc: "Clean, holistic wellness" },
+  { id: 13, name: "Blood Sugar Management",            mci: "water-plus",    color: "#008080", desc: "Steady energy, zero spikes" },
 ];
 
 const GENDERS = ["Male", "Female", "Other"];
@@ -257,7 +257,9 @@ export default function OnboardingScreen() {
                     onPress={() => toggleGoal(goal.id)}
                   >
                     <View style={styles.goalCardTop}>
-                      <Text style={styles.goalEmoji}>{goal.icon}</Text>
+                      <View style={[styles.goalIconWrap, { backgroundColor: goal.color + "22" }]}>
+                        <MaterialCommunityIcons name={goal.mci as any} size={22} color={goal.color} />
+                      </View>
                       {rank !== undefined && (
                         <View style={styles.rankBadge}>
                           <Text style={styles.rankText}>{rank}</Text>
@@ -430,7 +432,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 6,
   },
-  goalEmoji: { fontSize: 28 },
+  goalIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   rankBadge: {
     width: 22,
     height: 22,

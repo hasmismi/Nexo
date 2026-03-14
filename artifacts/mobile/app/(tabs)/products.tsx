@@ -13,7 +13,7 @@ import {
   Platform,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "@/context/AppContext";
@@ -128,7 +128,9 @@ export default function ProductsScreen() {
                 onPress={() => { Haptics.selectionAsync(); setTrialSelections([]); setTrialVisible(true); }}
               >
                 <View style={styles.trialBannerLeft}>
-                  <Text style={styles.trialBannerEmoji}>⭐</Text>
+                  <View style={styles.trialBannerIconWrap}>
+                    <MaterialCommunityIcons name="star-circle" size={32} color={Colors.accent} />
+                  </View>
                   <View>
                     <Text style={styles.trialBannerTitle}>Try Nexo for 7 Days</Text>
                     <Text style={styles.trialBannerSub}>Pick any 2 products · 175g each · ₹399</Text>
@@ -161,7 +163,7 @@ export default function ProductsScreen() {
                 <>
                   <View style={styles.detailHeader}>
                     <View style={[styles.detailIconBig, { backgroundColor: detailProduct.icon_color + "20" }]}>
-                      <Text style={styles.detailIconEmoji}>{detailProduct.icon_emoji}</Text>
+                      <MaterialCommunityIcons name={detailProduct.icon_emoji as any} size={34} color={detailProduct.icon_color} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.detailName}>{detailProduct.name}</Text>
@@ -269,7 +271,7 @@ export default function ProductsScreen() {
                     onPress={() => toggleTrialProduct(p.id)}
                   >
                     <View style={[styles.trialIcon, { backgroundColor: p.icon_color + "20" }]}>
-                      <Text style={{ fontSize: 20 }}>{p.icon_emoji}</Text>
+                      <MaterialCommunityIcons name={p.icon_emoji as any} size={22} color={p.icon_color} />
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={[styles.trialProductName, sel && { color: Colors.primary }]}>{p.name}</Text>
@@ -317,7 +319,7 @@ function ProductCard({ product, onPress }: { product: Product; onPress: () => vo
       onPress={() => { Haptics.selectionAsync(); onPress(); }}
     >
       <View style={[styles.cardIcon, { backgroundColor: product.icon_color + "20" }]}>
-        <Text style={styles.cardEmoji}>{product.icon_emoji}</Text>
+        <MaterialCommunityIcons name={product.icon_emoji as any} size={26} color={product.icon_color} />
       </View>
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
@@ -365,12 +367,11 @@ const styles = StyleSheet.create({
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.dark.textSecondary, marginTop: 4, marginBottom: 16 },
   trialBanner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: Colors.accent + "15", borderWidth: 1, borderColor: Colors.accent + "40", borderRadius: 16, padding: 16 },
   trialBannerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
-  trialBannerEmoji: { fontSize: 28 },
+  trialBannerIconWrap: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
   trialBannerTitle: { fontFamily: "Inter_700Bold", fontSize: 15, color: Colors.dark.text },
   trialBannerSub: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textSecondary, marginTop: 2 },
   card: { flexDirection: "row", backgroundColor: Colors.dark.surface, marginHorizontal: 20, marginBottom: 12, borderRadius: 18, borderWidth: 1, borderColor: Colors.dark.border, padding: 16, gap: 14 },
   cardIcon: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  cardEmoji: { fontSize: 26 },
   cardContent: { flex: 1, gap: 3 },
   cardHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 8 },
   cardName: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.dark.text, flex: 1 },
@@ -388,7 +389,6 @@ const styles = StyleSheet.create({
   modalSub: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.dark.textSecondary },
   detailHeader: { flexDirection: "row", gap: 16, marginBottom: 16, alignItems: "flex-start" },
   detailIconBig: { width: 64, height: 64, borderRadius: 20, alignItems: "center", justifyContent: "center" },
-  detailIconEmoji: { fontSize: 34 },
   detailName: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.dark.text, lineHeight: 26 },
   detailGoal: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.dark.textSecondary, marginTop: 2 },
   detailPrice: { fontFamily: "Inter_700Bold", fontSize: 16, marginTop: 4 },

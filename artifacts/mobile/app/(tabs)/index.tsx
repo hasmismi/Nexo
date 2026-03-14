@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApp } from "@/context/AppContext";
@@ -22,14 +22,14 @@ import { api } from "@/lib/api";
 import Colors from "@/constants/colors";
 
 const GOALS_LIST = [
-  { id: 6,  name: "Muscle Gain",                      icon: "🏋️" },
-  { id: 7,  name: "Weight Loss",                       icon: "🌬️" },
-  { id: 8,  name: "Improved Brain Performance",        icon: "🧠" },
-  { id: 9,  name: "Increase Energy Levels",            icon: "🏃" },
-  { id: 10, name: "Kids Health",                       icon: "👒" },
-  { id: 11, name: "Overall Senior Health Improvement", icon: "😊" },
-  { id: 12, name: "Overall Fitness Support",           icon: "🌿" },
-  { id: 13, name: "Blood Sugar Management",            icon: "🍬" },
+  { id: 6,  name: "Muscle Gain",                      mci: "weight-lifter", color: "#D9342B" },
+  { id: 7,  name: "Weight Loss",                       mci: "run",           color: "#A8A8B3" },
+  { id: 8,  name: "Improved Brain Performance",        mci: "brain",         color: "#F5C518" },
+  { id: 9,  name: "Increase Energy Levels",            mci: "lightning-bolt",color: "#1A6FBF" },
+  { id: 10, name: "Kids Health",                       mci: "account-child", color: "#FF8C00" },
+  { id: 11, name: "Overall Senior Health Improvement", mci: "human-cane",    color: "#6A0DAD" },
+  { id: 12, name: "Overall Fitness Support",           mci: "leaf",          color: "#4CAF50" },
+  { id: 13, name: "Blood Sugar Management",            mci: "water-plus",    color: "#008080" },
 ];
 
 export default function DashboardScreen() {
@@ -242,8 +242,8 @@ export default function DashboardScreen() {
               userGoals.map((g) => {
                 const meta = GOALS_LIST.find((gl) => gl.id === g.goal_id);
                 return (
-                  <View key={g.goal_id} style={styles.goalChip}>
-                    <Text style={styles.goalChipEmoji}>{meta?.icon ?? "🎯"}</Text>
+                  <View key={g.goal_id} style={[styles.goalChip, { borderColor: (meta?.color ?? Colors.primary) + "50" }]}>
+                    <MaterialCommunityIcons name={(meta?.mci ?? "star") as any} size={15} color={meta?.color ?? Colors.primary} />
                     <Text style={styles.goalChipText}>{g.goal_name}</Text>
                   </View>
                 );
@@ -271,7 +271,9 @@ export default function DashboardScreen() {
                 {recommendations.map((rec, i) => (
                   <View key={rec.product_id} style={[styles.planItem, i > 0 && styles.planItemBorder]}>
                     <View style={styles.planItemLeft}>
-                      <Text style={styles.planEmoji}>{rec.icon_emoji}</Text>
+                      <View style={[styles.planIconWrap, { backgroundColor: (rec.icon_color ?? Colors.primary) + "22" }]}>
+                        <MaterialCommunityIcons name={(rec.icon_emoji ?? "pill") as any} size={20} color={rec.icon_color ?? Colors.primary} />
+                      </View>
                       <View>
                         <Text style={styles.planProductName}>{rec.product_name}</Text>
                         <Text style={styles.planGoal}>{rec.goal_name}</Text>
@@ -358,7 +360,9 @@ export default function DashboardScreen() {
                       style={[styles.goalCard, !!sel && styles.goalCardSelected]}
                       onPress={() => toggleGoal(goal.id)}
                     >
-                      <Text style={styles.goalCardEmoji}>{goal.icon}</Text>
+                      <View style={[styles.goalCardIconWrap, { backgroundColor: goal.color + "22" }]}>
+                        <MaterialCommunityIcons name={goal.mci as any} size={22} color={goal.color} />
+                      </View>
                       <Text style={[styles.goalCardName, !!sel && { color: Colors.primary }]}>{goal.name}</Text>
                       {sel && (
                         <View style={styles.checkCircle}>
@@ -501,7 +505,7 @@ const styles = StyleSheet.create({
   planItem: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", padding: 16 },
   planItemBorder: { borderTopWidth: 1, borderTopColor: Colors.dark.border },
   planItemLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
-  planEmoji: { fontSize: 24 },
+  planIconWrap: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   planProductName: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.dark.text },
   planGoal: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textSecondary, marginTop: 2 },
   planItemRight: { alignItems: "flex-end" },
@@ -528,9 +532,9 @@ const styles = StyleSheet.create({
   modalTitle: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.dark.text },
   modalSub: { fontFamily: "Inter_400Regular", fontSize: 14, color: Colors.dark.textSecondary, marginBottom: 8 },
   goalsGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, paddingBottom: 8 },
-  goalCard: { width: "47%", backgroundColor: Colors.dark.surface, borderWidth: 1, borderColor: Colors.dark.border, borderRadius: 14, padding: 14, alignItems: "flex-start", gap: 4 },
+  goalCard: { width: "47%", backgroundColor: Colors.dark.surface, borderWidth: 1, borderColor: Colors.dark.border, borderRadius: 14, padding: 14, alignItems: "flex-start", gap: 6 },
   goalCardSelected: { borderColor: Colors.primary, backgroundColor: Colors.primary + "10" },
-  goalCardEmoji: { fontSize: 24, marginBottom: 4 },
+  goalCardIconWrap: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center", marginBottom: 2 },
   goalCardName: { fontFamily: "Inter_500Medium", fontSize: 12, color: Colors.dark.text, lineHeight: 17 },
   checkCircle: { position: "absolute", top: 8, right: 8, width: 18, height: 18, borderRadius: 9, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: 14, height: 52, alignItems: "center", justifyContent: "center", marginTop: 8 },
