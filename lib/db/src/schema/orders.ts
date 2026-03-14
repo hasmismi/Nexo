@@ -17,6 +17,7 @@ export const ordersTable = pgTable("orders", {
   payment_method: text("payment_method"),
   delivery_lat: doublePrecision("delivery_lat"),
   delivery_lng: doublePrecision("delivery_lng"),
+  delivery_fee: real("delivery_fee").default(0).notNull(),
   created_at: timestamp("created_at").defaultNow().notNull(),
 });
 

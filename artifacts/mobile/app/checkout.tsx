@@ -53,8 +53,14 @@ export default function CheckoutScreen() {
     enabled: !!user,
   });
 
+  const DELIVERY_FEE = 99;
+
   const items: CartItem[] = data?.items ?? [];
-  const totalPrice = data?.total_price ?? 0;
+  const subtotal = data?.total_price ?? 0;
+  const totalGrams = items.reduce((s, i) => s + i.grams, 0);
+  const isChennai = city.trim().toLowerCase() === "chennai";
+  const deliveryFee = isChennai && totalGrams >= 1000 ? 0 : DELIVERY_FEE;
+  const grandTotal = subtotal + deliveryFee;
 
   const handleUseLocation = async () => {
     try {
@@ -107,6 +113,7 @@ export default function CheckoutScreen() {
         payment_method: paymentMethod,
         delivery_lat: coords?.lat,
         delivery_lng: coords?.lng,
+        delivery_fee: deliveryFee,
       });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -163,9 +170,33 @@ export default function CheckoutScreen() {
             </View>
           ))}
           <View style={styles.divider} />
+          <View style={styles.summaryRow}>
+            <Text style={styles.subtotalLabel}>Subtotal</Text>
+            <Text style={styles.subtotalValue}>₹{subtotal.toLocaleString()}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryLeft}>
+              <Feather name="truck" size={13} color={deliveryFee === 0 ? "#00C27B" : Colors.dark.textSecondary} />
+              <Text style={[styles.subtotalLabel, deliveryFee === 0 && { color: "#00C27B" }]}>
+                Delivery Fee
+              </Text>
+            </View>
+            <Text style={[styles.subtotalValue, deliveryFee === 0 && { color: "#00C27B", fontFamily: "Inter_700Bold" }]}>
+              {deliveryFee === 0 ? "FREE" : `₹${deliveryFee}`}
+            </Text>
+          </View>
+          {!(isChennai && totalGrams >= 1000) && (
+            <View style={styles.freeDeliveryHint}>
+              <Feather name="info" size={11} color={Colors.primary} />
+              <Text style={styles.freeDeliveryText}>
+                Free delivery for Chennai orders over 1 kg
+              </Text>
+            </View>
+          )}
+          <View style={styles.divider} />
           <View style={[styles.summaryRow, { marginBottom: 0 }]}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>₹{totalPrice.toLocaleString()}</Text>
+            <Text style={styles.totalValue}>₹{grandTotal.toLocaleString()}</Text>
           </View>
         </View>
 
@@ -249,7 +280,7 @@ export default function CheckoutScreen() {
         <View style={styles.footerRow}>
           <View>
             <Text style={styles.footerLabel}>Total to pay</Text>
-            <Text style={styles.footerTotal}>₹{totalPrice.toLocaleString()}</Text>
+            <Text style={styles.footerTotal}>₹{grandTotal.toLocaleString()}</Text>
           </View>
           <View style={styles.footerPayBadge}>
             <Feather
@@ -363,6 +394,15 @@ const styles = StyleSheet.create({
   summaryGrams: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textSecondary },
   summaryPrice: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: Colors.dark.text },
   divider: { height: 1, backgroundColor: Colors.dark.border, marginVertical: 4 },
+  subtotalLabel: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.dark.textSecondary },
+  subtotalValue: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.dark.textSecondary },
+  freeDeliveryHint: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    backgroundColor: Colors.primary + "10",
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7,
+    borderWidth: 1, borderColor: Colors.primary + "25",
+  },
+  freeDeliveryText: { fontFamily: "Inter_400Regular", fontSize: 11, color: Colors.primary, flex: 1, lineHeight: 16 },
   totalLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: Colors.dark.textSecondary },
   totalValue: { fontFamily: "Inter_700Bold", fontSize: 20, color: Colors.primary },
 

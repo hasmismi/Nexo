@@ -125,6 +125,7 @@ export const api = {
     payment_method?: string;
     delivery_lat?: number;
     delivery_lng?: number;
+    delivery_fee?: number;
   }) =>
     request<{ order: Order; message: string }>("/checkout", {
       method: "POST",

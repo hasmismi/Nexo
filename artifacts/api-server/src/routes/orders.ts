@@ -17,6 +17,7 @@ router.post("/checkout", async (req, res) => {
       payment_method,
       delivery_lat,
       delivery_lng,
+      delivery_fee,
     } = req.body;
     if (!account_id) return res.status(400).json({ message: "account_id required" });
 
@@ -34,7 +35,9 @@ router.post("/checkout", async (req, res) => {
 
     if (cartItems.length === 0) return res.status(400).json({ message: "Cart is empty" });
 
-    const total_price = parseFloat(cartItems.reduce((sum, i) => sum + i.price, 0).toFixed(2));
+    const subtotal = parseFloat(cartItems.reduce((sum, i) => sum + i.price, 0).toFixed(2));
+    const fee = typeof delivery_fee === "number" ? delivery_fee : 0;
+    const total_price = parseFloat((subtotal + fee).toFixed(2));
 
     const orders = await db
       .insert(ordersTable)
@@ -50,6 +53,7 @@ router.post("/checkout", async (req, res) => {
         payment_method: payment_method ?? null,
         delivery_lat: delivery_lat ?? null,
         delivery_lng: delivery_lng ?? null,
+        delivery_fee: fee,
       })
       .returning();
 
@@ -74,6 +78,7 @@ router.post("/checkout", async (req, res) => {
         id: order.id,
         account_id: order.account_id,
         total_price: order.total_price,
+        delivery_fee: order.delivery_fee,
         status: order.status,
         tracking_link: order.tracking_link ?? undefined,
         delivery_name: order.delivery_name ?? undefined,

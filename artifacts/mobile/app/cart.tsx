@@ -88,8 +88,14 @@ export default function CartScreen() {
 
           <View style={[styles.footer, { paddingBottom: Platform.OS === "web" ? 34 : insets.bottom + 16 }]}>
             <View style={styles.totalRow}>
-              <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>₹{totalPrice.toLocaleString()}</Text>
+              <View>
+                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalValue}>₹{totalPrice.toLocaleString()}</Text>
+              </View>
+              <View style={styles.deliveryNotice}>
+                <Feather name="truck" size={12} color={Colors.primary} />
+                <Text style={styles.deliveryNoticeText}>+₹99 delivery{"\n"}Free in Chennai &gt;1 kg</Text>
+              </View>
             </View>
             <Pressable
               style={({ pressed }) => [styles.checkoutBtn, pressed && { opacity: 0.85 }]}
@@ -257,5 +263,23 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_600SemiBold",
     fontSize: 16,
     color: "#000",
+  },
+  deliveryNotice: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: Colors.primary + "10",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: Colors.primary + "25",
+    maxWidth: 150,
+  },
+  deliveryNoticeText: {
+    fontFamily: "Inter_400Regular",
+    fontSize: 11,
+    color: Colors.primary,
+    lineHeight: 16,
   },
 });
