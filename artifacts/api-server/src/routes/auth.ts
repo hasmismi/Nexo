@@ -12,12 +12,23 @@ router.post("/google-login", async (req, res) => {
       return res.status(400).json({ message: "google_id and email are required" });
     }
 
+    // First try to find by google_id
     let account = await db
       .select()
       .from(accountsTable)
       .where(eq(accountsTable.google_id, google_id))
       .limit(1);
 
+    // If not found by google_id, try by email (handles returning users)
+    if (account.length === 0) {
+      account = await db
+        .select()
+        .from(accountsTable)
+        .where(eq(accountsTable.email, email))
+        .limit(1);
+    }
+
+    // If still not found, create new account
     if (account.length === 0) {
       const inserted = await db
         .insert(accountsTable)
