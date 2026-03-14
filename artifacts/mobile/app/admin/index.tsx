@@ -84,6 +84,7 @@ export default function AdminDashboard() {
         onPress={() => router.push("/admin/orders")}
         badge={data?.pending_orders}
       />
+      <NavCard label="Offers & Promotions" icon="tag" onPress={() => router.push("/admin/offers")} />
       <NavCard label="Users" icon="users" onPress={() => router.push("/admin/users")} />
       <NavCard label="Products" icon="package" onPress={() => router.push("/admin/products")} />
     </ScrollView>

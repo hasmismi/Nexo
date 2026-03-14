@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { db } from "@workspace/db";
-import { accountsTable, profilesTable, ordersTable, orderItemsTable, productsTable } from "@workspace/db/schema";
-import { eq, desc, count, sum, sql } from "drizzle-orm";
+import { accountsTable, profilesTable, ordersTable, orderItemsTable, productsTable, offersTable } from "@workspace/db/schema";
+import { eq, desc, count, sum, sql, asc } from "drizzle-orm";
 
 const router = Router();
 
@@ -33,7 +33,7 @@ router.get("/stats", requireAdmin, async (req, res) => {
     const [orderCount] = await db.select({ count: count() }).from(ordersTable);
     const [revenueResult] = await db.select({ total: sum(ordersTable.delivery_fee) }).from(ordersTable);
 
-    const itemRevenue = await db.select({ total: sum(sql`${orderItemsTable.quantity} * ${orderItemsTable.unit_price}`) }).from(orderItemsTable);
+    const itemRevenue = await db.select({ total: sql<string>`COALESCE(SUM(${orderItemsTable.grams} * ${orderItemsTable.price}), 0)` }).from(orderItemsTable);
     const productRevenue = Number(itemRevenue[0]?.total ?? 0);
     const deliveryRevenue = Number(revenueResult[0]?.total ?? 0);
 
@@ -74,6 +74,7 @@ router.get("/orders", requireAdmin, async (req, res) => {
         payment_method: ordersTable.payment_method,
         delivery_fee: ordersTable.delivery_fee,
         order_status: ordersTable.order_status,
+        tracking_link: ordersTable.tracking_link,
         razorpay_payment_id: ordersTable.razorpay_payment_id,
         created_at: ordersTable.created_at,
         email: accountsTable.email,
@@ -92,8 +93,8 @@ router.get("/orders", requireAdmin, async (req, res) => {
             .select({
               order_id: orderItemsTable.order_id,
               product_name: productsTable.name,
-              quantity: orderItemsTable.quantity,
-              unit_price: orderItemsTable.unit_price,
+              quantity: orderItemsTable.grams,
+              unit_price: orderItemsTable.price,
             })
             .from(orderItemsTable)
             .leftJoin(productsTable, eq(orderItemsTable.product_id, productsTable.id))
@@ -121,10 +122,12 @@ router.get("/orders", requireAdmin, async (req, res) => {
 router.put("/orders/:id/status", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { order_status } = req.body;
+    const { order_status, tracking_link } = req.body;
     const valid = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
     if (!valid.includes(order_status)) return res.status(400).json({ message: "Invalid status" });
-    await db.update(ordersTable).set({ order_status }).where(eq(ordersTable.id, Number(id)));
+    const updates: Record<string, unknown> = { order_status };
+    if (tracking_link !== undefined) updates.tracking_link = tracking_link || null;
+    await db.update(ordersTable).set(updates).where(eq(ordersTable.id, Number(id)));
     return res.json({ success: true });
   } catch (err) {
     console.error("update order status error:", err);
@@ -210,6 +213,75 @@ router.put("/products/:id", requireAdmin, async (req, res) => {
     return res.json({ product });
   } catch (err) {
     console.error("update product error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.get("/offers", requireAdmin, async (req, res) => {
+  try {
+    const offers = await db.select().from(offersTable).orderBy(desc(offersTable.created_at));
+    return res.json({ offers });
+  } catch (err) {
+    console.error("admin offers error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post("/offers", requireAdmin, async (req, res) => {
+  try {
+    const { account_id: _a, ...body } = req.body;
+    const [offer] = await db.insert(offersTable).values({
+      title: body.title,
+      description: body.description ?? "",
+      code: body.code || null,
+      discount_type: body.discount_type ?? "percent",
+      discount_value: Number(body.discount_value),
+      min_order_amount: Number(body.min_order_amount ?? 0),
+      max_uses: body.max_uses ? Number(body.max_uses) : null,
+      is_active: body.is_active ?? true,
+      starts_at: body.starts_at ? new Date(body.starts_at) : null,
+      ends_at: body.ends_at ? new Date(body.ends_at) : null,
+    }).returning();
+    return res.json({ offer });
+  } catch (err) {
+    console.error("create offer error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.put("/offers/:id", requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { account_id: _a, ...body } = req.body;
+    const updates: Record<string, unknown> = {};
+    if ("title" in body) updates.title = body.title;
+    if ("description" in body) updates.description = body.description;
+    if ("code" in body) updates.code = body.code || null;
+    if ("discount_type" in body) updates.discount_type = body.discount_type;
+    if ("discount_value" in body) updates.discount_value = Number(body.discount_value);
+    if ("min_order_amount" in body) updates.min_order_amount = Number(body.min_order_amount);
+    if ("max_uses" in body) updates.max_uses = body.max_uses ? Number(body.max_uses) : null;
+    if ("is_active" in body) updates.is_active = body.is_active;
+    if ("starts_at" in body) updates.starts_at = body.starts_at ? new Date(body.starts_at) : null;
+    if ("ends_at" in body) updates.ends_at = body.ends_at ? new Date(body.ends_at) : null;
+    const [offer] = await db.update(offersTable).set(updates).where(eq(offersTable.id, Number(id))).returning();
+    return res.json({ offer });
+  } catch (err) {
+    console.error("update offer error:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.delete("/offers/:id", requireAdmin, async (req, res) => {
+  try {
+    const account_id = Number(req.query.account_id);
+    if (!account_id) return res.status(401).json({ message: "account_id required" });
+    const [acc] = await db.select({ is_admin: accountsTable.is_admin }).from(accountsTable).where(eq(accountsTable.id, account_id)).limit(1);
+    if (!acc?.is_admin) return res.status(403).json({ message: "Admin access required" });
+    await db.delete(offersTable).where(eq(offersTable.id, Number(req.params.id)));
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("delete offer error:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 });

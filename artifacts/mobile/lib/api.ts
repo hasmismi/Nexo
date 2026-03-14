@@ -172,10 +172,10 @@ export const api = {
   adminOrders: (account_id: number) =>
     request<{ orders: AdminOrder[] }>(`/admin/orders?account_id=${account_id}`),
 
-  adminUpdateOrderStatus: (account_id: number, order_id: number, order_status: string) =>
+  adminUpdateOrderStatus: (account_id: number, order_id: number, order_status: string, tracking_link?: string) =>
     request<{ success: boolean }>(`/admin/orders/${order_id}/status`, {
       method: "PUT",
-      body: JSON.stringify({ account_id, order_status }),
+      body: JSON.stringify({ account_id, order_status, ...(tracking_link !== undefined ? { tracking_link } : {}) }),
     }),
 
   adminUsers: (account_id: number) =>
@@ -194,6 +194,26 @@ export const api = {
     request<{ product: AdminProduct }>(`/admin/products/${product_id}`, {
       method: "PUT",
       body: JSON.stringify({ account_id, ...updates }),
+    }),
+
+  adminOffers: (account_id: number) =>
+    request<{ offers: AdminOffer[] }>(`/admin/offers?account_id=${account_id}`),
+
+  adminCreateOffer: (account_id: number, data: Omit<AdminOffer, "id" | "uses_count" | "created_at">) =>
+    request<{ offer: AdminOffer }>("/admin/offers", {
+      method: "POST",
+      body: JSON.stringify({ account_id, ...data }),
+    }),
+
+  adminUpdateOffer: (account_id: number, offer_id: number, data: Partial<AdminOffer>) =>
+    request<{ offer: AdminOffer }>(`/admin/offers/${offer_id}`, {
+      method: "PUT",
+      body: JSON.stringify({ account_id, ...data }),
+    }),
+
+  adminDeleteOffer: (account_id: number, offer_id: number) =>
+    request<{ success: boolean }>(`/admin/offers/${offer_id}?account_id=${account_id}`, {
+      method: "DELETE",
     }),
 };
 
@@ -219,6 +239,7 @@ export interface AdminOrder {
   payment_method: string | null;
   delivery_fee: number;
   order_status: string;
+  tracking_link: string | null;
   razorpay_payment_id: string | null;
   created_at: string;
   items: { order_id: number; product_name: string | null; quantity: number; unit_price: number }[];
@@ -254,6 +275,22 @@ export interface AdminProduct {
   nutrition_fibre_g: number | null;
   nutrition_sugars_g: number | null;
   nutrition_added_sugars_g: number | null;
+}
+
+export interface AdminOffer {
+  id: number;
+  title: string;
+  description: string;
+  code: string | null;
+  discount_type: string;
+  discount_value: number;
+  min_order_amount: number;
+  max_uses: number | null;
+  uses_count: number;
+  is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  created_at: string;
 }
 
 export interface Order {
