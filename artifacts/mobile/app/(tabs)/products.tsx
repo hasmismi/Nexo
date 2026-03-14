@@ -104,7 +104,7 @@ export default function ProductsScreen() {
       setTrialVisible(false);
       const p1 = regularProducts.find((p) => p.id === trialSelections[0])?.name;
       const p2 = regularProducts.find((p) => p.id === trialSelections[1])?.name;
-      Alert.alert("Trial Pack Added!", `${p1} + ${p2} (175g each) added to cart for ₹399.`);
+      Alert.alert("Trial Pack Added!", `${p1} + ${p2} (175g each) added to cart for ₹499.`);
       setTrialSelections([]);
     } catch (err: any) {
       Alert.alert("Error", err.message);
@@ -146,7 +146,7 @@ export default function ProductsScreen() {
                   </View>
                   <View>
                     <Text style={styles.trialBannerTitle}>Try Nexo for 7 Days</Text>
-                    <Text style={styles.trialBannerSub}>Pick any 2 products · 175g each · ₹399</Text>
+                    <Text style={styles.trialBannerSub}>Pick any 2 products · 175g each · ₹499</Text>
                   </View>
                 </View>
                 <Feather name="chevron-right" size={18} color={Colors.accent} />
@@ -275,7 +275,7 @@ export default function ProductsScreen() {
               Pick exactly 2 products · 175g each · 50g/day for 7 days
             </Text>
             <Text style={[styles.modalSub, { color: Colors.accent, fontFamily: "Inter_600SemiBold", marginTop: -4 }]}>
-              Fixed price: ₹399
+              Fixed price: ₹499
             </Text>
 
             <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 360 }}>
@@ -320,7 +320,7 @@ export default function ProductsScreen() {
               ) : (
                 <>
                   <Feather name="shopping-cart" size={18} color="#fff" />
-                  <Text style={styles.addBtnText}>Add Trial Pack · ₹399</Text>
+                  <Text style={styles.addBtnText}>Add Trial Pack · ₹499</Text>
                 </>
               )}
             </Pressable>

@@ -18,7 +18,7 @@ router.post("/add", async (req, res) => {
     const product = products[0];
     let price: number;
     if (product.is_trial) {
-      price = 399;
+      price = 499;
     } else {
       price = parseFloat((product.price_per_gram * grams).toFixed(2));
     }
