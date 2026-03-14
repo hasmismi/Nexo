@@ -17,8 +17,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  googleLogin: (data: { google_id: string; email: string; name?: string }) =>
-    request<{ account_id: number; email: string; onboarding_completed: boolean }>("/auth/google-login", {
+  signup: (data: { email: string; password: string }) =>
+    request<{ account_id: number; email: string; onboarding_completed: boolean }>("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  login: (data: { email: string; password: string }) =>
+    request<{ account_id: number; email: string; onboarding_completed: boolean }>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     }),
