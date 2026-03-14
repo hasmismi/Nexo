@@ -1,6 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
-import { router } from "expo-router";
 
 interface AppUser {
   account_id: number;
@@ -46,7 +45,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.removeItem("nexo_user");
     setUserState(null);
     setCartCount(0);
-    router.replace("/");
   };
 
   const value = useMemo<AppContextValue>(
