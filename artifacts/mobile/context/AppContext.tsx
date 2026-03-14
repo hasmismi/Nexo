@@ -47,7 +47,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.removeItem("nexo_user");
     setUserState(null);
     setCartCount(0);
-    router.replace("/");
+    router.replace("/index");
   };
 
   const value = useMemo<AppContextValue>(

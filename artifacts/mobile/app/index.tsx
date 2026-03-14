@@ -62,11 +62,11 @@ export default function LoginScreen() {
 
       <View style={styles.heroSection}>
         <View style={styles.pillRow}>
-          <Pill label="Weight Loss" mci="run" color={Colors.primary} />
-          <Pill label="Muscle Gain" mci="weight-lifter" color="#D9342B" />
+          <Pill label="Weight Loss" mci="run-fast" color={Colors.primary} />
+          <Pill label="Muscle Gain" mci="dumbbell" color="#D9342B" />
         </View>
         <View style={styles.pillRow}>
-          <Pill label="Energy" mci="lightning-bolt" color={Colors.blue} />
+          <Pill label="Energy" mci="flash" color={Colors.blue} />
           <Pill label="Brain Power" mci="brain" color="#F5C518" />
           <Pill label="Vitality" mci="leaf" color="#6A0DAD" />
         </View>
