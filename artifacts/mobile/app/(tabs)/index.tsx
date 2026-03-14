@@ -326,6 +326,29 @@ export default function DashboardScreen() {
                 </View>
               </View>
 
+              {(() => {
+                const hasNutrition = recommendations.some((r: any) => r.nutrition_energy_kcal != null);
+                if (!hasNutrition) return null;
+                const totalEnergy = recommendations.reduce((s: number, r: any) => s + (r.nutrition_energy_kcal ?? 0) * (r.grams_per_day / 100), 0);
+                const totalProtein = recommendations.reduce((s: number, r: any) => s + (r.nutrition_protein_g ?? 0) * (r.grams_per_day / 100), 0);
+                const totalCarbs = recommendations.reduce((s: number, r: any) => s + (r.nutrition_carbs_g ?? 0) * (r.grams_per_day / 100), 0);
+                const totalFat = recommendations.reduce((s: number, r: any) => s + (r.nutrition_fat_g ?? 0) * (r.grams_per_day / 100), 0);
+                const totalFibre = recommendations.reduce((s: number, r: any) => s + (r.nutrition_fibre_g ?? 0) * (r.grams_per_day / 100), 0);
+                return (
+                  <View style={styles.nutritionCard}>
+                    <Text style={styles.nutritionCardTitle}>Daily Nutrition Summary</Text>
+                    <Text style={styles.nutritionCardSub}>Based on your {gramsPerDay.toFixed(0)}g/day plan</Text>
+                    <View style={styles.nutritionGrid}>
+                      <NutrientPill label="Energy" value={`${totalEnergy.toFixed(0)} kcal`} color={Colors.accent} />
+                      <NutrientPill label="Protein" value={`${totalProtein.toFixed(1)}g`} color="#00C27B" />
+                      <NutrientPill label="Carbs" value={`${totalCarbs.toFixed(1)}g`} color="#F5C518" />
+                      <NutrientPill label="Fat" value={`${totalFat.toFixed(1)}g`} color="#FF8C00" />
+                      <NutrientPill label="Fibre" value={`${totalFibre.toFixed(1)}g`} color="#6A9AC4" />
+                    </View>
+                  </View>
+                );
+              })()}
+
               <Pressable
                 style={({ pressed }) => [styles.addPlanBtn, pressed && { opacity: 0.85 }, isAddingToCart && { opacity: 0.6 }]}
                 onPress={addPlanToCart}
@@ -463,6 +486,15 @@ export default function DashboardScreen() {
   );
 }
 
+function NutrientPill({ label, value, color }: { label: string; value: string; color: string }) {
+  return (
+    <View style={[styles.nutrientPill, { borderColor: color + "40" }]}>
+      <Text style={[styles.nutrientValue, { color }]}>{value}</Text>
+      <Text style={styles.nutrientLabel}>{label}</Text>
+    </View>
+  );
+}
+
 function CertBadge({ emoji, text }: { emoji: string; text: string }) {
   return (
     <View style={styles.certBadge}>
@@ -577,4 +609,11 @@ const styles = StyleSheet.create({
   profileRow: { flexDirection: "row", gap: 12 },
   profileLabel: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.dark.textSecondary, marginBottom: 8 },
   profileInput: { backgroundColor: Colors.dark.surface, borderWidth: 1, borderColor: Colors.dark.border, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 13, fontFamily: "Inter_400Regular", fontSize: 15, color: Colors.dark.text },
+  nutritionCard: { backgroundColor: Colors.dark.surface, borderRadius: 16, borderWidth: 1, borderColor: Colors.dark.border, padding: 16, gap: 12, marginBottom: 12 },
+  nutritionCardTitle: { fontFamily: "Inter_700Bold", fontSize: 14, color: Colors.dark.text },
+  nutritionCardSub: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textSecondary, marginTop: -6, marginBottom: 2 },
+  nutritionGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  nutrientPill: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 10, borderWidth: 1, backgroundColor: Colors.dark.surfaceElevated, alignItems: "center", minWidth: 72 },
+  nutrientValue: { fontFamily: "Inter_700Bold", fontSize: 14 },
+  nutrientLabel: { fontFamily: "Inter_400Regular", fontSize: 11, color: Colors.dark.textSecondary, marginTop: 2 },
 });

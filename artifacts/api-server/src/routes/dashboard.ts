@@ -58,6 +58,13 @@ router.get("/", async (req, res) => {
           price_per_gram: p.price_per_gram,
           icon_emoji: p.icon_emoji,
           icon_color: p.icon_color,
+          nutrition_energy_kcal: p.nutrition_energy_kcal,
+          nutrition_protein_g: p.nutrition_protein_g,
+          nutrition_fat_g: p.nutrition_fat_g,
+          nutrition_carbs_g: p.nutrition_carbs_g,
+          nutrition_fibre_g: p.nutrition_fibre_g,
+          nutrition_sugars_g: p.nutrition_sugars_g,
+          nutrition_added_sugars_g: p.nutrition_added_sugars_g,
         });
       }
     }

@@ -19,6 +19,13 @@ router.get("/", async (_req, res) => {
         key_benefits: productsTable.key_benefits,
         icon_color: productsTable.icon_color,
         icon_emoji: productsTable.icon_emoji,
+        nutrition_energy_kcal: productsTable.nutrition_energy_kcal,
+        nutrition_protein_g: productsTable.nutrition_protein_g,
+        nutrition_fat_g: productsTable.nutrition_fat_g,
+        nutrition_carbs_g: productsTable.nutrition_carbs_g,
+        nutrition_fibre_g: productsTable.nutrition_fibre_g,
+        nutrition_sugars_g: productsTable.nutrition_sugars_g,
+        nutrition_added_sugars_g: productsTable.nutrition_added_sugars_g,
       })
       .from(productsTable)
       .leftJoin(goalsTable, eq(productsTable.goal_id, goalsTable.id));

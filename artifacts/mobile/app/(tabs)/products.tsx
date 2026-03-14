@@ -33,6 +33,13 @@ type Product = {
   key_benefits: string[];
   icon_color: string;
   icon_emoji: string;
+  nutrition_energy_kcal?: number | null;
+  nutrition_protein_g?: number | null;
+  nutrition_fat_g?: number | null;
+  nutrition_carbs_g?: number | null;
+  nutrition_fibre_g?: number | null;
+  nutrition_sugars_g?: number | null;
+  nutrition_added_sugars_g?: number | null;
 };
 
 export default function ProductsScreen() {
@@ -195,6 +202,25 @@ export default function ProductsScreen() {
 
                   <Text style={styles.detailDesc}>{detailProduct.description}</Text>
 
+                  {detailProduct.nutrition_energy_kcal != null && (
+                    <View style={styles.nutritionSection}>
+                      <Text style={styles.nutritionTitle}>Nutrition Facts</Text>
+                      <Text style={styles.nutritionSubtitle}>Per 100g serving</Text>
+                      <View style={styles.nutritionTable}>
+                        <View style={[styles.nutritionRow, styles.nutritionRowHighlight]}>
+                          <Text style={styles.nutritionLabel}>Energy</Text>
+                          <Text style={styles.nutritionValueBold}>{detailProduct.nutrition_energy_kcal} kcal</Text>
+                        </View>
+                        <NutritionRow label="Protein" value={detailProduct.nutrition_protein_g} unit="g" color={detailProduct.icon_color} />
+                        <NutritionRow label="Total Fats" value={detailProduct.nutrition_fat_g} unit="g" />
+                        <NutritionRow label="Carbohydrates" value={detailProduct.nutrition_carbs_g} unit="g" />
+                        <NutritionRow label="  of which Fibre" value={detailProduct.nutrition_fibre_g} unit="g" sub />
+                        <NutritionRow label="  of which Sugars" value={detailProduct.nutrition_sugars_g} unit="g" sub />
+                        <NutritionRow label="  Added Sugars" value={detailProduct.nutrition_added_sugars_g} unit="g" sub />
+                      </View>
+                    </View>
+                  )}
+
                   {detailProduct.key_benefits?.length > 0 && (
                     <View style={styles.benefitsSection}>
                       <Text style={styles.benefitsTitle}>Key Benefits</Text>
@@ -338,6 +364,18 @@ export default function ProductsScreen() {
   );
 }
 
+function NutritionRow({ label, value, unit, sub, color }: { label: string; value?: number | null; unit: string; sub?: boolean; color?: string }) {
+  if (value == null) return null;
+  return (
+    <View style={styles.nutritionRow}>
+      <Text style={[styles.nutritionLabel, sub && styles.nutritionLabelSub]}>{label}</Text>
+      <Text style={[styles.nutritionValue, color ? { color, fontFamily: "Inter_600SemiBold" } : null]}>
+        {value}{unit}
+      </Text>
+    </View>
+  );
+}
+
 function ProductCard({ product, onPress }: { product: Product; onPress: () => void }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -450,4 +488,14 @@ const styles = StyleSheet.create({
   trialProductSub: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textSecondary, marginTop: 2 },
   trialCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: "center", justifyContent: "center" },
   trialCounter: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.dark.textSecondary, textAlign: "center" },
+  nutritionSection: { backgroundColor: Colors.dark.surface, borderRadius: 14, padding: 16, marginBottom: 16, borderWidth: 1, borderColor: Colors.dark.border },
+  nutritionTitle: { fontFamily: "Inter_700Bold", fontSize: 15, color: Colors.dark.text, marginBottom: 2 },
+  nutritionSubtitle: { fontFamily: "Inter_400Regular", fontSize: 11, color: Colors.dark.textTertiary, marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.8 },
+  nutritionTable: { gap: 0 },
+  nutritionRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 9, borderTopWidth: 1, borderTopColor: Colors.dark.border },
+  nutritionRowHighlight: { borderTopWidth: 0, paddingTop: 0, marginBottom: 4 },
+  nutritionLabel: { fontFamily: "Inter_400Regular", fontSize: 13, color: Colors.dark.textSecondary },
+  nutritionLabelSub: { fontFamily: "Inter_400Regular", fontSize: 12, color: Colors.dark.textTertiary },
+  nutritionValue: { fontFamily: "Inter_500Medium", fontSize: 13, color: Colors.dark.text },
+  nutritionValueBold: { fontFamily: "Inter_700Bold", fontSize: 16, color: Colors.dark.text },
 });
