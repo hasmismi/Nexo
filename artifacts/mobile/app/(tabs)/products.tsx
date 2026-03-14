@@ -12,6 +12,7 @@ import {
   ScrollView,
   Platform,
 } from "react-native";
+import { Toast } from "@/components/AppAlert";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -45,6 +46,7 @@ export default function ProductsScreen() {
 
   const [trialVisible, setTrialVisible] = useState(false);
   const [trialSelections, setTrialSelections] = useState<number[]>([]);
+  const [cartToast, setCartToast] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -68,7 +70,7 @@ export default function ProductsScreen() {
       await api.addToCart({ account_id: user.account_id, product_id: product.id, grams: g });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       setDetailProduct(null);
-      Alert.alert("Added to Cart", `${product.name} added successfully!`);
+      setCartToast(`${product.name} added to cart!`);
     } catch (err: any) {
       Alert.alert("Error", err.message);
     } finally {
@@ -102,9 +104,7 @@ export default function ProductsScreen() {
       await api.addToCart({ account_id: user.account_id, product_id: trialPack.id, grams: 350 });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       setTrialVisible(false);
-      const p1 = regularProducts.find((p) => p.id === trialSelections[0])?.name;
-      const p2 = regularProducts.find((p) => p.id === trialSelections[1])?.name;
-      Alert.alert("Trial Pack Added!", `${p1} + ${p2} (175g each) added to cart for ₹499.`);
+      setCartToast("Trial Pack added to cart!");
       setTrialSelections([]);
     } catch (err: any) {
       Alert.alert("Error", err.message);
@@ -327,6 +327,13 @@ export default function ProductsScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <Toast
+        visible={!!cartToast}
+        message={cartToast ?? ""}
+        icon="shopping-cart"
+        onHide={() => setCartToast(null)}
+      />
     </View>
   );
 }

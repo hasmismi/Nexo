@@ -12,6 +12,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
+import { ConfirmModal, Toast } from "@/components/AppAlert";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -44,6 +45,8 @@ export default function DashboardScreen() {
   const [isSavingGoals, setIsSavingGoals] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [logoutVisible, setLogoutVisible] = useState(false);
+  const [cartToast, setCartToast] = useState(false);
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["dashboard", user?.account_id],
@@ -131,7 +134,7 @@ export default function DashboardScreen() {
         });
       }
       queryClient.invalidateQueries({ queryKey: ["cart"] });
-      Alert.alert("Added to Cart!", "Your nutrition plan has been added to your cart.");
+      setCartToast(true);
     } catch (err: any) {
       Alert.alert("Error", err.message);
     } finally {
@@ -193,14 +196,7 @@ export default function DashboardScreen() {
               style={styles.headerBtn}
               onPress={() => {
                 Haptics.selectionAsync();
-                Alert.alert(
-                  "Log Out",
-                  "Are you sure you want to log out?",
-                  [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "Log Out", style: "destructive", onPress: () => logout() },
-                  ]
-                );
+                setLogoutVisible(true);
               }}
             >
               <Feather name="log-out" size={20} color={Colors.dark.textSecondary} />
@@ -445,6 +441,24 @@ export default function DashboardScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <ConfirmModal
+        visible={logoutVisible}
+        title="Log Out"
+        message="Are you sure you want to log out?"
+        onDismiss={() => setLogoutVisible(false)}
+        buttons={[
+          { text: "Cancel", style: "cancel" },
+          { text: "Log Out", style: "destructive", onPress: () => logout() },
+        ]}
+      />
+
+      <Toast
+        visible={cartToast}
+        message="Added to cart!"
+        icon="shopping-cart"
+        onHide={() => setCartToast(false)}
+      />
     </>
   );
 }
