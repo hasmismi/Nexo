@@ -128,7 +128,7 @@ export const api = {
     delivery_fee?: number;
     razorpay_payment_id?: string;
   }) =>
-    request<{ order: Order; message: string }>("/checkout", {
+    request<{ order: Order; message: string }>("/orders/checkout", {
       method: "POST",
       body: JSON.stringify(data),
     }),
