@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Nexo App",
-    "slug": "mobile",
+    "name": "Nexo",
+    "slug": "nexo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/nexo-logo.jpeg",
-    "scheme": "mobile",
+    "scheme": "nexo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -14,13 +14,15 @@
       "backgroundColor": "#0A0A0A"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nexo.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/nexo-logo.jpeg",
         "backgroundColor": "#0A0A0A"
-      }
+      },
+      "package": "com.nexo.app"
     },
     "web": {
       "favicon": "./assets/images/nexo-logo.jpeg"

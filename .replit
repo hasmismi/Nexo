@@ -33,3 +33,5 @@ channel = "stable-25_05"
 [userenv.shared]
 EXPO_PUBLIC_GOOGLE_CLIENT_ID = "451139089274-c30eh4qe5n43u50btl6rrglb6jkstv6h.apps.googleusercontent.com"
 EXPO_PUBLIC_GOOGLE_CLIENT_SECRET = "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"
+RAZORPAY_KEY_ID = "rzp_test_SRLN1sHDShHNXe"
+RAZORPAY_KEY_SECRET = "8oFdLCMJXhty2NE3eTUCI5hd"
