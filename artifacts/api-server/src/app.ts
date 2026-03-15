@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === "production") {
 
   app.use(express.static(webBuildDir));
 
-  app.get("*", (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(path.join(webBuildDir, "index.html"));
   });
 }
