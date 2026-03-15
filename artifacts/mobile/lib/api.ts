@@ -165,6 +165,9 @@ export const api = {
       total_users: number;
       total_orders: number;
       total_revenue: number;
+      this_month_revenue: number;
+      last_month_revenue: number;
+      this_year_revenue: number;
       today_orders: number;
       pending_orders: number;
     }>(`/admin/stats?account_id=${account_id}`),

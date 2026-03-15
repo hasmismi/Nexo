@@ -31,11 +31,25 @@ router.get("/stats", requireAdmin, async (req, res) => {
   try {
     const [userCount] = await db.select({ count: count() }).from(accountsTable);
     const [orderCount] = await db.select({ count: count() }).from(ordersTable);
-    const [revenueResult] = await db.select({ total: sum(ordersTable.delivery_fee) }).from(ordersTable);
 
-    const itemRevenue = await db.select({ total: sql<string>`COALESCE(SUM(${orderItemsTable.grams} * ${orderItemsTable.price}), 0)` }).from(orderItemsTable);
-    const productRevenue = Number(itemRevenue[0]?.total ?? 0);
-    const deliveryRevenue = Number(revenueResult[0]?.total ?? 0);
+    const [totalRevenueRow] = await db
+      .select({ total: sql<string>`COALESCE(SUM(${ordersTable.total_price}), 0)` })
+      .from(ordersTable);
+
+    const [thisMonthRow] = await db
+      .select({ total: sql<string>`COALESCE(SUM(${ordersTable.total_price}), 0)` })
+      .from(ordersTable)
+      .where(sql`DATE_TRUNC('month', ${ordersTable.created_at}) = DATE_TRUNC('month', CURRENT_DATE)`);
+
+    const [lastMonthRow] = await db
+      .select({ total: sql<string>`COALESCE(SUM(${ordersTable.total_price}), 0)` })
+      .from(ordersTable)
+      .where(sql`DATE_TRUNC('month', ${ordersTable.created_at}) = DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month')`);
+
+    const [thisYearRow] = await db
+      .select({ total: sql<string>`COALESCE(SUM(${ordersTable.total_price}), 0)` })
+      .from(ordersTable)
+      .where(sql`DATE_TRUNC('year', ${ordersTable.created_at}) = DATE_TRUNC('year', CURRENT_DATE)`);
 
     const todayOrders = await db
       .select({ count: count() })
@@ -50,7 +64,10 @@ router.get("/stats", requireAdmin, async (req, res) => {
     return res.json({
       total_users: Number(userCount.count),
       total_orders: Number(orderCount.count),
-      total_revenue: productRevenue + deliveryRevenue,
+      total_revenue: Number(totalRevenueRow?.total ?? 0),
+      this_month_revenue: Number(thisMonthRow?.total ?? 0),
+      last_month_revenue: Number(lastMonthRow?.total ?? 0),
+      this_year_revenue: Number(thisYearRow?.total ?? 0),
       today_orders: Number(todayOrders[0]?.count ?? 0),
       pending_orders: Number(pendingOrders[0]?.count ?? 0),
     });

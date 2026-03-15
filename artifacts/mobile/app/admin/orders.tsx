@@ -63,7 +63,7 @@ function OrderCard({
   const [pendingStatus, setPendingStatus] = useState<Status | null>(null);
   const [trackingInput, setTrackingInput] = useState(order.tracking_link ?? "");
 
-  const itemTotal = order.items.reduce((s, i) => s + i.quantity * i.unit_price, 0);
+  const itemTotal = order.items.reduce((s, i) => s + i.unit_price, 0);
   const total = itemTotal + order.delivery_fee;
   const displayName = order.customer_name ?? order.email ?? `User ${order.account_id}`;
 
@@ -114,8 +114,8 @@ function OrderCard({
           {order.items.map((item, i) => (
             <View key={i} style={styles.itemRow}>
               <Text style={styles.itemName}>{item.product_name ?? "Product"}</Text>
-              <Text style={styles.itemQty}>×{item.quantity}</Text>
-              <Text style={styles.itemPrice}>₹{(item.quantity * item.unit_price).toFixed(0)}</Text>
+              <Text style={styles.itemQty}>{item.quantity}g</Text>
+              <Text style={styles.itemPrice}>₹{item.unit_price.toFixed(0)}</Text>
             </View>
           ))}
           <View style={styles.divider} />
