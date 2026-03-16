@@ -10,7 +10,7 @@ async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!account_id) return res.status(401).json({ message: "account_id required" });
   const [acc] = await db.select({ is_admin: accountsTable.is_admin }).from(accountsTable).where(eq(accountsTable.id, account_id)).limit(1);
   if (!acc?.is_admin) return res.status(403).json({ message: "Admin access required" });
-  next();
+  return next();
 }
 
 router.post("/bootstrap", async (req, res) => {
