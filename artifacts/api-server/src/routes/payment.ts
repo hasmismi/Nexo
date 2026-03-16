@@ -22,7 +22,7 @@ router.post("/create-order", async (req, res) => {
     }
 
     const auth = Buffer.from(`${key_id}:${key_secret}`).toString("base64");
-    const response = await fetch("https://api.razorpay.com/v1/orders", {
+    const response: any = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
       headers: {
         Authorization: `Basic ${auth}`,
