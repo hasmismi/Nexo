@@ -5,7 +5,7 @@ import { eq, desc, count, sum, sql, asc } from "drizzle-orm";
 
 const router = Router();
 
-async function requireAdmin(req: Request, res: Response, next: NextFunction): promise<void> {
+async function requireAdmin(req: Request, res: Response, next: NextFunction): Promise<void> {
   const account_id = Number(req.body?.account_id ?? req.query?.account_id);
   if (!account_id) return res.status(401).json({ message: "account_id required" });
   const [acc] = await db.select({ is_admin: accountsTable.is_admin }).from(accountsTable).where(eq(accountsTable.id, account_id)).limit(1);
